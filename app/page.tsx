@@ -49,7 +49,7 @@ export default function Login() {
   return (
     <div className="flex min-h-screen w-full font-sans">
 
-      {/* --- COLUMNA IZQUIERDA (Fondo Rojo y Logo) --- */}
+      {/* --- COLUMNA IZQUIERDA --- */}
       <div className="hidden md:flex w-1/2 bg-[#C62828] items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-transparent"></div>
 
@@ -62,7 +62,7 @@ export default function Login() {
         </div>
       </div>
 
-      {/* --- COLUMNA DERECHA (Formulario Blanco) --- */}
+      {/* --- COLUMNA DERECHA formarto en blanco para manejo de información --- */}
       <div className="w-full md:w-1/2 flex items-center justify-center bg-white p-8">
         <div className="w-full max-w-md">
 
@@ -78,7 +78,7 @@ export default function Login() {
 
           <form className="space-y-8" onSubmit={handleLogin}>
 
-            {/* Mensaje de Error (solo aparece si hay error) */}
+            {/* Mensaje de Error (solo aparece si hay error de digitacion por CAPA 8 no por erroes de informacion) */}
             {error && (
               <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 text-sm" role="alert">
                 <p>{error}</p>

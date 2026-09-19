@@ -106,7 +106,14 @@ export default function Dashboard() {
         { titulo: "VER\nINVENTARIO", icono: "👁️", permisos: ["superadmin", "administrador", "jefe de brigada", "voluntario"] },
         { titulo: "GESTIONAR\nEQUIPO APH", icono: "✍️", permisos: ["superadmin", "administrador", "jefe de brigada"] },
         { titulo: "CHEQUEO DE\nAMBULANCIAS", icono: "🔧", permisos: ["superadmin", "administrador", "jefe de brigada"] },
-        { titulo: "CONTROL DE\nCOMBUSTIBLE", icono: "⛽", permisos: ["superadmin", "administrador"] },
+        {
+            titulo: "CONTROL DE\nCOMBUSTIBLE",
+            icono: "⛽",
+            permisos: ["superadmin", "administrador", "voluntario"],
+            onClick: () => router.push("/dashboard/combustible")
+        },
+
+
         { titulo: "GUÍA\nMÉDICA", icono: "📖", permisos: ["superadmin", "administrador", "jefe de brigada", "voluntario"] },
         { titulo: "CIERRE\nTURNO", icono: "🛑", permisos: ["superadmin", "administrador", "jefe de brigada", "voluntario"] }
     ];
@@ -165,7 +172,9 @@ export default function Dashboard() {
                 <div className="max-w-2xl w-full">
                     <div className="grid grid-cols-2 gap-4 mb-4">
                         {botonesGridPermitidos.map((btn, index) => (
-                            <button key={index} className="bg-[#C62828] text-white p-6 rounded-2xl flex flex-col items-center justify-center gap-3 hover:bg-red-800 transition shadow-md h-36">
+                            <button key={index}
+                                onClick={(btn as any).onClick}
+                                className="bg-[#C62828] text-white p-6 rounded-2xl flex flex-col items-center justify-center gap-3 hover:bg-red-800 transition shadow-md h-36">
                                 <span className="text-3xl opacity-90">{btn.icono}</span>
                                 <span className="text-[11px] font-bold text-center uppercase tracking-wider whitespace-pre-line">{btn.titulo}</span>
                             </button>
@@ -173,7 +182,8 @@ export default function Dashboard() {
                     </div>
                     <div className="flex flex-col gap-3">
                         {botonesListaPermitidos.map((btn, index) => (
-                            <button key={index} className="bg-[#C62828] text-white py-4 rounded-xl text-xs font-bold tracking-widest flex items-center justify-center gap-2 hover:bg-red-800 transition shadow-md">
+                            <button key={index}
+                                className="bg-[#C62828] text-white py-4 rounded-xl text-xs font-bold tracking-widest flex items-center justify-center gap-2 hover:bg-red-800 transition shadow-md">
                                 <span>{btn.icono}</span> {btn.titulo}
                             </button>
                         ))}
