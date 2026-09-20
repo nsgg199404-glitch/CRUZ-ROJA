@@ -1,36 +1,23 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistema de Control Operativo - Cruz Roja Salvadoreña (Seccional Guazapa)
 
-## Getting Started
+Plataforma web administrativa desarrollada en Next.js y Tailwind CSS, sincronizada en tiempo real con la base de datos Firestore de la aplicación móvil nativa. Este sistema permite la digitalización de la logística de ambulancias, control de personal y generación de reportes.
 
-First, run the development server:
+##  Registro de Contribuciones y Avances
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Kevin Alvarado (Arquitectura y Módulos Base)
+* **Arquitectura del Sistema:** Configuración inicial del proyecto con Next.js y Tailwind CSS.
+* **Integración de Base de Datos:** Conexión centralizada con Firebase Firestore (`firebase.ts`).
+* **Autenticación y Seguridad:** Implementación del inicio de sesión dinámico consultando directamente los carnets en la colección `usuarios` y persistencia de sesión mediante `localStorage`.
+* **Panel de Control (Dashboard):** Desarrollo de la interfaz principal con lectura en tiempo real para el perfil del usuario activo y la tabla de líderes.
+* **Control de Accesos (RBAC):** Sistema de filtrado inteligente que muestra u oculta módulos operativos dependiendo del rol del usuario (Superadmin, Administrador, Jefe de Brigada, Voluntario).
+* **Calendario Operativo:** Creación del algoritmo matemático para calcular la rotación infinita de brigadas (B1 a B4) y la asignación automática de la brigada de apoyo (B5) en fines de semana.
+* **Maquetación:** Diseño base del formulario de Control de Combustible.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Norma García (Interacción de Archivos y Módulo Logístico)
+* **Gestión de Evidencia Fotográfica:** Configuración del input oculto y diseño del botón para tomar o adjuntar la foto del ticket/recibo desde el dispositivo del usuario.
+* **Persistencia de Registros:** Implementación de la función para recolectar los datos del formulario (unidad, kilometraje, monto, nombre de foto) y guardar los cambios creando un nuevo registro exitoso en la colección `control_combustible` de la base de datos.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+##  Tecnologías Utilizadas
+* **Frontend:** React, Next.js (App Router), Tailwind CSS.
+* **Backend / BaaS:** Firebase Firestore (Base de datos NoSQL en tiempo real).
+* **Lenguaje:** TypeScript / JavaScript.
