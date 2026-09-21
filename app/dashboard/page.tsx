@@ -110,7 +110,7 @@ export default function Dashboard() {
             titulo: "CONTROL DE\nCOMBUSTIBLE",
             icono: "⛽",
             permisos: ["superadmin", "administrador", "voluntario"],
-            onClick: () => router.push("/dashboard/combustible")
+            onClick: () =>router.push("/combustible")
         },
 
 
