@@ -57,11 +57,11 @@ export default function NovedadesPage() {
                 }
             });
 
-            // CORRECCIÓN CLAVE: El id real de Firebase se pone AL FINAL
-            // Usamos "as any" para que TypeScript no bloquee la compilación en Vercel
+
+
             const listaCompleta = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as any));
 
-            // ORDENAMIENTO ESTRICTO CON JAVASCRIPT (CORREGIDO PARA TYPESCRIPT)
+
             listaCompleta.sort((a: any, b: any) => {
                 let timeA = a.timestamp || 0;
                 let timeB = b.timestamp || 0;
