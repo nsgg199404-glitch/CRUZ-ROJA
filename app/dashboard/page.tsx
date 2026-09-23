@@ -100,29 +100,32 @@ export default function Dashboard() {
     }
 
     const rolActual = usuarioActivo.rol?.toLowerCase() || "voluntario";
+
     const gridBotones = [
-        { titulo: "MURO DE\nNOVEDADES", icono: "≡", permisos: ["superadmin", "administrador", "jefe de brigada", "voluntario"] },
-        { titulo: "BITÁCORA DE\nATENCIONES", icono: "📄", permisos: ["superadmin", "administrador", "jefe de brigada", "voluntario"] },
-        { titulo: "VER\nINVENTARIO", icono: "👁️", permisos: ["superadmin", "administrador", "jefe de brigada", "voluntario"] },
-        { titulo: "GESTIONAR\nEQUIPO APH", icono: "✍️", permisos: ["superadmin", "administrador", "jefe de brigada"] },
-        { titulo: "CHEQUEO DE\nAMBULANCIAS", icono: "🔧", permisos: ["superadmin", "administrador", "jefe de brigada"] },
+        { titulo: "MURO DE\nNOVEDADES", icono: "≡", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"] },
+        { titulo: "BITÁCORA DE\nATENCIONES", icono: "📄", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"] },
+        { titulo: "VER\nINVENTARIO", icono: "👁️", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"] },
+        { titulo: "GESTIONAR\nEQUIPO APH", icono: "✍️", permisos: ["superadmin", "administrador general", "jefe de brigada"] },
+        { titulo: "CHEQUEO DE\nAMBULANCIAS", icono: "🔧", permisos: ["superadmin", "administrador general", "jefe de brigada"] },
         {
             titulo: "CONTROL DE\nCOMBUSTIBLE",
             icono: "⛽",
-            permisos: ["superadmin", "administrador", "voluntario"],
-            onClick: () =>router.push("/combustible")
+            permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"],
+            onClick: () => router.push("/dashboard/combustible")
         },
-
-
-        { titulo: "GUÍA\nMÉDICA", icono: "📖", permisos: ["superadmin", "administrador", "jefe de brigada", "voluntario"] },
-        { titulo: "CIERRE\nTURNO", icono: "🛑", permisos: ["superadmin", "administrador", "jefe de brigada", "voluntario"] }
+        { titulo: "GUÍA\nMÉDICA", icono: "📖", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"] },
+        { titulo: "CIERRE\nTURNO", icono: "🛑", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"] }
     ];
+
     const listBotones = [
-        { titulo: "GENERAR REPORTES (PDF)", icono: "📄", permisos: ["superadmin", "administrador"] },
-        { titulo: "GESTIONAR USUARIOS", icono: "⚙️", permisos: ["superadmin", "administrador"] },
-        { titulo: "TOMAR ASISTENCIA", icono: "📋", permisos: ["superadmin", "administrador", "jefe de brigada"] },
-        { titulo: "PANEL SERVICIO SOCIAL", icono: "❤️", permisos: ["superadmin", "administrador"] }
+        { titulo: "GENERAR REPORTES (PDF)", icono: "📄", permisos: ["superadmin"] },
+        { titulo: "GESTIONAR USUARIOS", icono: "⚙️", permisos: ["superadmin", "administrador general", "jefe de brigada"] },
+        { titulo: "TOMAR ASISTENCIA", icono: "📋", permisos: ["superadmin", "administrador general", "jefe de brigada"] },
+        { titulo: "PANEL SERVICIO SOCIAL", icono: "🎓", permisos: ["superadmin"] },
+        { titulo: "VER HISTORIAL DE FIRMAS", icono: "📜", permisos: ["superadmin"] },
+        { titulo: "PANEL SUPER ADMIN", icono: "🔐", permisos: ["superadmin"] }
     ];
+
     const botonesGridPermitidos = gridBotones.filter(btn => btn.permisos.includes(rolActual));
     const botonesListaPermitidos = listBotones.filter(btn => btn.permisos.includes(rolActual));
 
@@ -156,7 +159,7 @@ export default function Dashboard() {
                     onClick={() => setMostrarCalendario(true)}
                     className="w-full bg-[#C62828] text-white py-3 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-red-800 transition shadow-md mb-2"
                 >
-                    📅 CALENDARIO
+                    CALENDARIO
                 </button>
 
                 <button

@@ -110,7 +110,7 @@ export default function ControlCombustible() {
                         type="button"
                         className="w-full bg-[#3F5159] text-white font-bold py-4 rounded-lg tracking-wider flex items-center justify-center gap-2 hover:bg-slate-700 transition shadow-md"
                     >
-                        📷 FOTO DEL TICKET / BOMBA
+                        FOTO DEL TICKET / BOMBA
                     </button>
 
                     {/* Botón de Submit */}
