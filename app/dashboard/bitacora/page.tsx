@@ -14,7 +14,7 @@ export default function BitacoraPage() {
     const [rolUsuario, setRolUsuario] = useState("voluntario");
     const [editandoId, setEditandoId] = useState<string | null>(null);
 
-    // NUEVO: Estados dinámicos para múltiples pacientes
+    //  Estados dinámicos para múltiples pacientes
     const [cantidadPacientes, setCantidadPacientes] = useState(1);
     const [pacientes, setPacientes] = useState([{ nombre: "", edad: "" }]);
 
@@ -45,11 +45,11 @@ export default function BitacoraPage() {
         }
     }, []);
 
-    // 2. Cargar historial
+    // 2. Cargar historial 
     useEffect(() => {
         const unsubscribe = onSnapshot(collection(db, "bitacora_atenciones"), (snapshot) => {
-            const lista = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            lista.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            const lista = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+            lista.sort((a: any, b: any) => (b.timestamp || 0) - (a.timestamp || 0));
             setAtenciones(lista);
         });
         return () => unsubscribe();
@@ -72,7 +72,7 @@ export default function BitacoraPage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // NUEVO: Función para manejar el cambio de cantidad de pacientes
+    //  Función para manejar el cambio de cantidad de pacientes
     const handleCantidadChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const cantidad = parseInt(e.target.value.replace(/\D/g, '')) || 1;
         setCantidadPacientes(cantidad);
@@ -115,7 +115,7 @@ export default function BitacoraPage() {
         e.preventDefault();
         setCargando(true);
         try {
-            // Consolidar pacientes en un solo string (ej: "Juan (23 años) | María (19 años)")
+
             const stringPacientes = pacientes
                 .map(p => p.edad ? `${p.nombre} (${p.edad} años)` : p.nombre)
                 .join(" | ");

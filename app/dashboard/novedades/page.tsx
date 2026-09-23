@@ -57,11 +57,12 @@ export default function NovedadesPage() {
                 }
             });
 
-            // CORRECCIÓN CLAVE: El id real de Firebase se pone AL FINAL para que no sea sobreescrito por el id: "" de la base de datos
-            const listaCompleta = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+            // CORRECCIÓN CLAVE: El id real de Firebase se pone AL FINAL
+            // Usamos "as any" para que TypeScript no bloquee la compilación en Vercel
+            const listaCompleta = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as any));
 
-            // ORDENAMIENTO ESTRICTO CON JAVASCRIPT
-            listaCompleta.sort((a, b) => {
+            // ORDENAMIENTO ESTRICTO CON JAVASCRIPT (CORREGIDO PARA TYPESCRIPT)
+            listaCompleta.sort((a: any, b: any) => {
                 let timeA = a.timestamp || 0;
                 let timeB = b.timestamp || 0;
 
@@ -209,7 +210,6 @@ export default function NovedadesPage() {
                     {novedades.length === 0 ? (
                         <p className="text-center text-gray-500 mt-4">No hay novedades aún.</p>
                     ) : (
-                        // CORRECCIÓN CLAVE 2: Agregamos index como plan B de seguridad para la llave (key)
                         novedades.map((post, index) => {
                             const rol = usuarioActivo?.rol?.toLowerCase() || "";
                             const esDueño = usuarioActivo?.carnet === post.carnetAutor || usuarioActivo?.carnet === post.autor;
