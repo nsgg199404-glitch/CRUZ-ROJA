@@ -268,7 +268,7 @@ export default function InventarioPage() {
                                 </button>
                             </div>
 
-                            {/* Fila 2: Editar y Eliminar (Solo Admins) */}
+                            {/*  Editar y Eliminar */}
                             {puedeEditar && (
                                 <div className="flex gap-2 mt-2">
                                     <button onClick={habilitarEdicion} className="flex-1 bg-[#B71C1C] text-white py-3 rounded font-bold text-sm uppercase hover:bg-red-900 transition shadow">
@@ -284,9 +284,9 @@ export default function InventarioPage() {
 
                 ) : vistaActual === "formulario" && itemSeleccionado ? (
 
-                    /* ==============================
-                       VISTA 4: EDICIÓN DEL ARTÍCULO
-                    ============================== */
+                    /* 
+                 EDICIÓN DEL ARTÍCULO
+                     */
                     <form onSubmit={handleActualizar} className="bg-white p-5 rounded-xl shadow-sm flex flex-col gap-4 border border-gray-200">
                         <div>
                             <label className="text-xs font-bold text-gray-500 mb-1 block">Nombre del Artículo</label>

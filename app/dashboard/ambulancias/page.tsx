@@ -102,7 +102,7 @@ export default function ChequeoAmbulanciasPage() {
 
             // 3. PUBLICAR AUTOMÁTICAMENTE EN EL MURO DE NOVEDADES
             const estadoGeneral = evaluarEstadoGeneral();
-            const descripcionNovedad = `${estadoGeneral.emoji} Revisión ${formData.unidad}: ✅ ${estadoGeneral.texto}. Km: ${formData.kilometraje}\nAceite: ${formData.nivelAceite}\nAgua: ${formData.nivelAgua}\nLlantas: ${formData.estadoLlantas}\nLuces: ${formData.lucesSirena}`;
+            const descripcionNovedad = `${estadoGeneral.emoji} Revisión ${formData.unidad}:  ${estadoGeneral.texto}. Km: ${formData.kilometraje}\nAceite: ${formData.nivelAceite}\nAgua: ${formData.nivelAgua}\nLlantas: ${formData.estadoLlantas}\nLuces: ${formData.lucesSirena}`;
 
             await addDoc(collection(db, "novedades"), {
                 autor: usuarioActivo.carnet,
@@ -120,12 +120,12 @@ export default function ChequeoAmbulanciasPage() {
             window.print();
 
             // 5. Limpiar y avisar
-            alert("✅ Chequeo guardado y publicado en el Muro de Novedades.");
+            alert(" Chequeo guardado y publicado en el Muro de Novedades.");
             router.push("/dashboard");
 
         } catch (error) {
             console.error("Error al guardar chequeo:", error);
-            alert("❌ Hubo un error. Verifica tu conexión.");
+            alert(" Hubo un error. Verifica tu conexión.");
         }
         setCargando(false);
     };
@@ -190,7 +190,7 @@ export default function ChequeoAmbulanciasPage() {
                     <div className="flex flex-col gap-2 mt-2">
                         <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFotoSelect} className="hidden" />
                         <button type="button" onClick={() => fileInputRef.current?.click()} className="w-full bg-[#FF8F00] text-white py-4 rounded-lg font-bold text-sm tracking-widest hover:bg-orange-600 transition shadow flex items-center justify-center gap-2">
-                            📸 TOMAR FOTO EVIDENCIA
+                            TOMAR FOTO EVIDENCIA
                         </button>
 
                         {fotoPreview && (
@@ -205,9 +205,9 @@ export default function ChequeoAmbulanciasPage() {
                     </button>
                 </form>
 
-                {/* =========================================
+                {/* 
                     VISTA SOLO PARA IMPRESIÓN PDF
-                ========================================= */}
+                */}
                 <div className="hidden print:block font-sans text-black">
                     <div className="border-b-2 border-black pb-4 mb-6 flex justify-between items-end">
                         <div>

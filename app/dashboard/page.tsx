@@ -1,4 +1,4 @@
-// app/dashboard/page.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -26,22 +26,22 @@ export default function Dashboard() {
 
     const gridBotones = [
         { titulo: "MURO DE\nNOVEDADES", icono: "≡", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/novedades" },
-        { titulo: "BITÁCORA DE\nATENCIONES", icono: "📄", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/bitacora" },
-        { titulo: "VER\nINVENTARIO", icono: "👁️", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/inventario" },
-        { titulo: "GESTIONAR\nEQUIPO APH", icono: "✍️", permisos: ["superadmin", "administrador general", "jefe de brigada"], ruta: "/dashboard/equipo-aph" },
-        { titulo: "CHEQUEO DE\nAMBULANCIAS", icono: "🔧", permisos: ["superadmin", "administrador general", "jefe de brigada"], ruta: "/dashboard/ambulancias" },
-        { titulo: "CONTROL DE\nCOMBUSTIBLE", icono: "⛽", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/combustible" },
-        { titulo: "GUÍA\nMÉDICA", icono: "📖", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/guia-medica" },
-        { titulo: "CIERRE\nTURNO", icono: "🛑", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/cierre-turno" }
+        { titulo: "BITÁCORA DE\nATENCIONES", icono: "⋆｡ﾟ☁︎｡⋆｡ ﾟ☾ ﾟ｡⋆", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/bitacora" },
+        { titulo: "VER\nINVENTARIO", icono: "♯", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/inventario" },
+        { titulo: "GESTIONAR\nEQUIPO APH", icono: "✮", permisos: ["superadmin", "administrador general", "jefe de brigada"], ruta: "/dashboard/equipo-aph" },
+        { titulo: "CHEQUEO DE\nAMBULANCIAS", icono: "☼", permisos: ["superadmin", "administrador general", "jefe de brigada"], ruta: "/dashboard/ambulancias" },
+        { titulo: "CONTROL DE\nCOMBUSTIBLE", icono: "❦", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/combustible" },
+        { titulo: "GUÍA\nMÉDICA", icono: "ᯓ★", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/guia-medica" },
+        { titulo: "CIERRE\nTURNO", icono: "𖦹", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/cierre-turno" }
     ];
 
     const listBotones = [
-        { titulo: "GENERAR REPORTES (PDF)", icono: "📄", permisos: ["superadmin"], ruta: "/dashboard/reportes" },
-        { titulo: "GESTIONAR USUARIOS", icono: "⚙️", permisos: ["superadmin", "administrador general", "jefe de brigada"], ruta: "/dashboard/usuarios" },
-        { titulo: "TOMAR ASISTENCIA", icono: "📋", permisos: ["superadmin", "administrador general", "jefe de brigada"], ruta: "/dashboard/asistencia" },
-        { titulo: "PANEL SERVICIO SOCIAL", icono: "🎓", permisos: ["superadmin"], ruta: "/dashboard/servicio-social" },
-        { titulo: "VER HISTORIAL DE FIRMAS", icono: "📜", permisos: ["superadmin"], ruta: "/dashboard/firmas" },
-        { titulo: "PANEL SUPER ADMIN", icono: "🔐", permisos: ["superadmin"], ruta: "/dashboard/superadmin" }
+        { titulo: "GENERAR REPORTES (PDF)", icono: "𝄞", permisos: ["superadmin"], ruta: "/dashboard/reportes" },
+        { titulo: "GESTIONAR USUARIOS", icono: "❀", permisos: ["superadmin", "administrador general", "jefe de brigada"], ruta: "/dashboard/usuarios" },
+        { titulo: "TOMAR ASISTENCIA", icono: "☁︎", permisos: ["superadmin", "administrador general", "jefe de brigada"], ruta: "/dashboard/asistencia" },
+        { titulo: "PANEL SERVICIO SOCIAL", icono: "✶", permisos: ["superadmin"], ruta: "/dashboard/servicio-social" },
+        { titulo: "VER HISTORIAL DE FIRMAS", icono: "⌗", permisos: ["superadmin"], ruta: "/dashboard/historial-firmas" },
+        { titulo: "PANEL SUPER ADMIN", icono: "➤", permisos: ["superadmin"], ruta: "/dashboard/superadmin" }
     ];
 
     const botonesGridPermitidos = gridBotones.filter(btn => btn.permisos.includes(rolActual));

@@ -83,12 +83,12 @@ export default function RegistroEquipoPage() {
             await updateDoc(docRef, { id: docRef.id });
 
             // 5. Limpiar formulario y mostrar éxito
-            alert("✅ Equipo registrado exitosamente en el inventario.");
+            alert(" Equipo registrado exitosamente en el inventario.");
             router.push("/dashboard/inventario"); // Redirigir a la vista de inventario
 
         } catch (error) {
             console.error("Error al guardar equipo:", error);
-            alert("❌ Hubo un error al guardar el registro. Verifica tu conexión.");
+            alert(" Hubo un error al guardar el registro. Verifica tu conexión.");
         }
 
         setCargando(false);
@@ -163,7 +163,7 @@ export default function RegistroEquipoPage() {
                             onClick={() => fileInputRef.current?.click()}
                             className="w-full bg-[#455A64] text-white py-4 rounded-lg font-bold text-sm tracking-widest hover:bg-gray-700 transition shadow flex items-center justify-center gap-2"
                         >
-                            📷 TOMAR / SUBIR FOTO
+                            TOMAR / SUBIR FOTO
                         </button>
 
                         {/* Área de Vista Previa (Recuadro gris) */}

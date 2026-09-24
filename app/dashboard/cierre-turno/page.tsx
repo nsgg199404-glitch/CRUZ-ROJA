@@ -60,7 +60,7 @@ export default function CierreTurnoPage() {
 
         } catch (error) {
             console.error("Error al recopilar datos:", error);
-            alert("❌ Hubo un error al generar el reporte.");
+            alert(" Hubo un error al generar el reporte.");
             setCargando(false);
         }
     };
@@ -68,9 +68,9 @@ export default function CierreTurnoPage() {
     return (
         <div className="min-h-screen bg-[#F5F7FA] font-sans print:bg-white">
 
-            {/* =========================================
-                VISTA DEL DASHBOARD (No se imprime)
-            ========================================= */}
+            {/* 
+                VISTA DEL DASHBOARD
+            */}
             <div className="print:hidden pb-20">
                 <header className="bg-white p-4 shadow-sm flex items-center gap-4 sticky top-0 z-10">
                     <button onClick={() => router.push("/dashboard")} className="text-[#C62828] font-bold text-xl">←</button>
@@ -79,14 +79,14 @@ export default function CierreTurnoPage() {
 
                 <main className="p-4 max-w-md mx-auto mt-6">
                     <div className="flex flex-col items-center mb-6">
-                        <span className="text-5xl mb-2">🏁</span>
+                        <span className="text-5xl mb-2"></span>
                         <h2 className="text-xl font-bold text-[#C62828]">CIERRE DE TURNO</h2>
                         <p className="text-gray-500 text-sm">Generación automática de reporte</p>
                     </div>
 
                     <div className="bg-white border border-gray-200 rounded-lg p-5 mb-6 shadow-sm">
                         <p className="text-sm text-gray-500 font-bold mb-3 flex items-center gap-2">
-                            <span>ℹ️</span> El sistema incluirá automáticamente:
+                            <span>ℹ</span> El sistema incluirá automáticamente:
                         </p>
                         <ul className="text-sm text-gray-700 flex flex-col gap-2">
                             <li className="flex items-center gap-2"><span className="text-green-500">✅</span> Lista de asistencia de hoy.</li>
@@ -120,15 +120,15 @@ export default function CierreTurnoPage() {
                         disabled={cargando}
                         className="w-full bg-[#D32F2F] text-white py-4 rounded-lg font-bold text-md tracking-wider hover:bg-red-800 transition shadow-md"
                     >
-                        {cargando ? "RECOPILANDO DATOS..." : "📄 GENERAR Y ENVIAR PDF"}
+                        {cargando ? "RECOPILANDO DATOS..." : " GENERAR Y ENVIAR PDF"}
                     </button>
                 </main>
             </div>
 
 
-            {/* =========================================
+            {/* 
                 VISTA SOLO PARA IMPRESIÓN PDF
-            ========================================= */}
+             */}
             <div className="hidden print:block p-8 text-black bg-white min-h-screen">
 
                 {/* Cabecera del PDF */}
@@ -143,7 +143,7 @@ export default function CierreTurnoPage() {
                     </div>
                 </div>
 
-                {/* Sección 1: Asistencia */}
+                {/*  Asistencia */}
                 <div className="mb-8">
                     <h2 className="text-lg font-bold bg-gray-200 p-2 mb-4 border border-gray-400 uppercase">1. Control de Asistencia</h2>
                     {asistencia.length === 0 ? (
@@ -174,7 +174,7 @@ export default function CierreTurnoPage() {
                     )}
                 </div>
 
-                {/* Sección 2: Emergencias Atendidas */}
+                {/*  Emergencias Atendidas */}
                 <div className="mb-8">
                     <h2 className="text-lg font-bold bg-gray-200 p-2 mb-4 border border-gray-400 uppercase">2. Bitácora de Emergencias</h2>
                     {atenciones.length === 0 ? (
@@ -203,7 +203,7 @@ export default function CierreTurnoPage() {
                     )}
                 </div>
 
-                {/* Sección 3: Observaciones */}
+                {/*  Observaciones */}
                 <div className="mb-12">
                     <h2 className="text-lg font-bold bg-gray-200 p-2 mb-4 border border-gray-400 uppercase">3. Novedades y Observaciones del Turno</h2>
                     <div className="border border-gray-400 p-4 min-h-[100px] text-sm">

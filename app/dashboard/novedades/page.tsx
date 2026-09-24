@@ -48,7 +48,7 @@ export default function NovedadesPage() {
                     if (!cargaInicial.current && Notification.permission === "granted") {
                         const data = change.doc.data();
                         if (usuarioActivo && data.autor !== usuarioActivo.carnet && data.carnetAutor !== usuarioActivo.carnet) {
-                            new Notification("Nueva Novedad 🚨", {
+                            new Notification("Nueva Novedad ", {
                                 body: data.titulo,
                                 icon: "/logo.jpg"
                             });
@@ -234,11 +234,11 @@ export default function NovedadesPage() {
                                         <div className="flex gap-4 items-center">
                                             {puedeBorrar && (
                                                 <button onClick={() => eliminarNovedad(post.id)} className="text-gray-400 hover:text-red-600 transition" title="Eliminar">
-                                                    🗑️
+
                                                 </button>
                                             )}
                                             <button onClick={() => compartirNovedad(post)} className="text-gray-400 hover:text-blue-600 transition" title="Compartir">
-                                                🔗
+
                                             </button>
                                         </div>
                                     </div>

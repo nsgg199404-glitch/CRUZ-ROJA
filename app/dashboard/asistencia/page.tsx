@@ -88,7 +88,6 @@ export default function AsistenciaPage() {
                     let horaE = "";
                     let horaS = "";
                     let estadoActual = asistenciasPrevias[carnet] || "Falta";
-                    // REGLA: Si ya estaba guardado como "Asiste", lo bloqueamos
                     let estaBloqueado = estadoActual === "Asiste";
 
                     if (docAsistenciaMaestra.exists()) {
@@ -239,8 +238,7 @@ export default function AsistenciaPage() {
                     } else if (vol.estado !== "Asiste" && yaHabiaAsistidoHoy) {
                         turnosActuales -= 1;
                         if (turnosActuales < 0) turnosActuales = 0;
-                        // Nota: Sería complejo restar horas exactas sin el registro previo, 
-                        // pero garantizamos que los turnos bajen.
+
                     }
 
                     await updateDoc(usuarioRef, {
@@ -261,11 +259,11 @@ export default function AsistenciaPage() {
                 turno: brigadaActual
             });
 
-            alert("✅ Asistencia actualizada correctamente.");
+            alert(" Asistencia actualizada correctamente.");
             router.push("/dashboard");
         } catch (error) {
             console.error("Error al guardar asistencia:", error);
-            alert("❌ Hubo un error al actualizar la asistencia.");
+            alert(" Hubo un error al actualizar la asistencia.");
         }
         setCargando(false);
     };

@@ -127,7 +127,7 @@ export default function Combustible() {
                 day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit"
             });
 
-            const descripcionNovedad = `⛽ ABASTECIMIENTO DE COMBUSTIBLE\nUnidad: ${unidad.trim()}\nMonto: $${dolares.toFixed(2)}\nKilometraje: ${km} Km.`;
+            const descripcionNovedad = ` ABASTECIMIENTO DE COMBUSTIBLE\nUnidad: ${unidad.trim()}\nMonto: $${dolares.toFixed(2)}\nKilometraje: ${km} Km.`;
 
             await addDoc(collection(db, "novedades"), {
                 autor: usuarioActivo.carnet,
@@ -141,7 +141,7 @@ export default function Combustible() {
                 titulo: `RECARGA DE COMBUSTIBLE - ${unidad.trim()}`
             });
 
-            setMensaje("✅ Carga registrada y publicada en Novedades.");
+            setMensaje(" Carga registrada y publicada en Novedades.");
             setRegistroId(null);
             setKilometraje("");
             setMonto("");
@@ -156,7 +156,7 @@ export default function Combustible() {
                 ? String(error.code)
                 : "error desconocido";
 
-            setMensaje(`❌ No se pudo completar el registro: ${codigo}.`);
+            setMensaje(` No se pudo completar el registro: ${codigo}.`);
         } finally {
             setGuardando(false);
         }
@@ -236,7 +236,7 @@ export default function Combustible() {
                                 onClick={() => fileInputRef.current?.click()}
                                 className="w-full rounded-lg bg-[#455a64] px-4 py-4 text-sm font-bold tracking-widest text-white shadow hover:bg-[#37474f] transition uppercase flex items-center justify-center gap-2"
                             >
-                                📸 FOTO DEL TICKET / BOMBA
+                                FOTO DEL TICKET / BOMBA
                             </button>
                         </div>
 
