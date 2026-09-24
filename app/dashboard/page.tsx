@@ -29,7 +29,7 @@ export default function Dashboard() {
         { titulo: "BITÁCORA DE\nATENCIONES", icono: "⋆｡ﾟ☁︎｡⋆｡ ﾟ☾ ﾟ｡⋆", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/bitacora" },
         { titulo: "VER\nINVENTARIO", icono: "♯", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/inventario" },
         { titulo: "GESTIONAR\nEQUIPO APH", icono: "✮", permisos: ["superadmin", "administrador general", "jefe de brigada"], ruta: "/dashboard/equipo-aph" },
-        { titulo: "CHEQUEO DE\nAMBULANCIAS", icono: "☼", permisos: ["superadmin", "administrador general", "jefe de brigada"], ruta: "/dashboard/ambulancias" },
+        { titulo: "CHEQUEO DE\nAMBULANCIAS", icono: "☼", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/ambulancias" },
         { titulo: "CONTROL DE\nCOMBUSTIBLE", icono: "❦", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/combustible" },
         { titulo: "GUÍA\nMÉDICA", icono: "ᯓ★", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/guia-medica" },
         { titulo: "CIERRE\nTURNO", icono: "𖦹", permisos: ["superadmin", "administrador general", "jefe de brigada", "voluntario"], ruta: "/dashboard/cierre-turno" }
