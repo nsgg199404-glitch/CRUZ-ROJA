@@ -12,6 +12,13 @@ Plataforma web administrativa desarrollada en Next.js y Tailwind CSS, sincroniza
 * **Control de Accesos (RBAC):** Sistema de filtrado inteligente que muestra u oculta módulos operativos dependiendo del rol del usuario (Superadmin, Administrador, Jefe de Brigada, Voluntario).
 * **Calendario Operativo:** Creación del algoritmo matemático para calcular la rotación infinita de brigadas (B1 a B4) y la asignación automática de la brigada de apoyo (B5) en fines de semana.
 * **Maquetación:** Diseño base del formulario de Control de Combustible.
+* 
+* ### Módulos Administrativos y Generación de Reportes (Fase Final)
+
+* **Panel de Super Administrador:** Dashboard ejecutivo diseñado con colores institucionales. Incluye un motor de gráficos estadísticos creado con código nativo, un sistema de alertas tempranas para el monitoreo de inasistencias de voluntarios y una tabla de control (semáforo) exportable a Excel y PDF.
+* **Automatización de Informes Mensuales:** Algoritmo avanzado que cruza las bases de datos de `registro_horas` y `bitacora_atenciones` para auto-completar estadísticas. Genera el documento oficial de Cruz Roja en formato PDF  listo para firma.
+* **Centro de Servicio Social:** Plataforma integral para la gestión de estudiantes de horas sociales. Permite llevar un control de progreso (meta de 150 hrs), toma de asistencia rápida, registro histórico inmutable y exportación dual de reportes (CSV compatible con Excel y PDF formal).
+
 
 ### Norma García (Interacción de Archivos y Módulo Logístico)
 * **Gestión de Evidencia Fotográfica:** Configuración del input oculto y diseño del botón para tomar o adjuntar la foto del ticket/recibo desde el dispositivo del usuario.
