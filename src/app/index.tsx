@@ -1,98 +1,165 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
+import { useState } from 'react';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
-
 export default function HomeScreen() {
+  const [carnet, setCarnet] = useState('');
+  const [contrasena, setContrasena] = useState('');
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+      <SafeAreaView style={styles.pantalla}>
+        <KeyboardAvoidingView
+            style={styles.pantalla}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <ScrollView
+              contentContainerStyle={styles.contenido}
+              keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.formulario}>
+              <View style={styles.encabezado}>
+                <Text style={styles.titulo}>CONTROL</Text>
+                <Text style={styles.subtitulo}>OPERATIVO</Text>
+                <View style={styles.linea} />
+                <Text style={styles.institucion}>
+                  Cruz Roja Guazapa
+                </Text>
+              </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+              <Text style={styles.etiqueta}>NÚMERO DE CARNET</Text>
+              <TextInput
+                  style={styles.campo}
+                  value={carnet}
+                  onChangeText={setCarnet}
+                  placeholder="Ej. 133171"
+                  placeholderTextColor="#64748b"
+                  keyboardType="number-pad"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  accessibilityLabel="Número de carnet"
+              />
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+              <Text style={styles.etiqueta}>CONTRASEÑA</Text>
+              <TextInput
+                  style={styles.campo}
+                  value={contrasena}
+                  onChangeText={setContrasena}
+                  placeholder="Escribe tu contraseña"
+                  placeholderTextColor="#64748b"
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  autoComplete="current-password"
+                  accessibilityLabel="Contraseña"
+              />
 
-        {Platform.OS === 'web' && <WebBadge />}
+              <Pressable
+                  accessibilityRole="button"
+                  onPress={() => router.push('./panel')}
+                  style={{
+                    backgroundColor: '#405660',
+                    borderRadius: 8,
+                    minHeight: 52,
+                    padding: 16,
+                    marginTop: 16,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+              >
+                <Text style={styles.textoBoton}>
+                  ABRIR PANEL DE PRUEBA
+                </Text>
+              </Pressable>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
-    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  pantalla: {
     flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  contenido: {
+    flexGrow: 1,
     justifyContent: 'center',
-    flexDirection: 'row',
+    padding: 24,
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
+  formulario: {
+    width: '100%',
+    maxWidth: 420,
+    alignSelf: 'center',
+  },
+  encabezado: {
     alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+    marginBottom: 40,
   },
-  heroSection: {
+  titulo: {
+    fontSize: 32,
+    fontWeight: '700',
+    letterSpacing: 5,
+    color: '#c92327',
+  },
+  subtitulo: {
+    fontSize: 24,
+    letterSpacing: 3,
+    color: '#c92327',
+    marginTop: 6,
+  },
+  linea: {
+    width: 48,
+    height: 2,
+    backgroundColor: '#c92327',
+    marginVertical: 20,
+  },
+  institucion: {
+    fontSize: 16,
+    color: '#475569',
+  },
+  etiqueta: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#475569',
+    marginBottom: 8,
+  },
+  campo: {
+    minHeight: 52,
+    borderWidth: 1,
+    borderColor: '#94a3b8',
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#0f172a',
+    backgroundColor: '#ffffff',
+    marginBottom: 24,
+  },
+  boton: {
+    minHeight: 52,
+    backgroundColor: '#c92327',
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+    padding: 16,
+    marginTop: 8,
+    opacity: 0.5,
   },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  textoBoton: {
+    color: '#ffffff',
+    fontSize: 15,
+    fontWeight: '700',
+    letterSpacing: 1,
   },
 });
