@@ -80,6 +80,14 @@ export default function HomeScreen() {
                   ABRIR PANEL DE PRUEBA
                 </Text>
               </Pressable>
+
+              <Pressable
+                  accessibilityRole="button"
+                  onPress={() => router.push('./registro')}
+                  style={styles.botonRegistro}
+              >
+                <Text style={styles.textoRegistro}>CREAR CUENTA</Text>
+              </Pressable>
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -158,6 +166,22 @@ const styles = StyleSheet.create({
   },
   textoBoton: {
     color: '#ffffff',
+    fontSize: 15,
+    fontWeight: '700',
+    letterSpacing: 1,
+  },
+  botonRegistro: {
+    minHeight: 52,
+    borderWidth: 1,
+    borderColor: '#c92327',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    marginTop: 14,
+  },
+  textoRegistro: {
+    color: '#c92327',
     fontSize: 15,
     fontWeight: '700',
     letterSpacing: 1,
