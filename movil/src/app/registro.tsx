@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { useState } from 'react';
 import {
   Alert,
@@ -13,22 +14,26 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { correoInternoDeCarnet, mensajeDeErrorAuth } from '@/lib/auth-carnet';
+import { auth } from '@/lib/firebase';
+
 export default function RegistroScreen() {
   const [nombre, setNombre] = useState('');
   const [carnet, setCarnet] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [confirmacion, setConfirmacion] = useState('');
   const [error, setError] = useState('');
+  const [cargando, setCargando] = useState(false);
 
-  function validarRegistro() {
-    const carnetLimpio = carnet.trim();
+  async function crearCuenta() {
+    const correo = correoInternoDeCarnet(carnet);
 
     if (nombre.trim().length < 3) {
       setError('Escribí tu nombre completo.');
       return;
     }
 
-    if (!/^\d{5,10}$/.test(carnetLimpio)) {
+    if (!correo) {
       setError('El carnet debe tener entre 5 y 10 números.');
       return;
     }
@@ -44,10 +49,19 @@ export default function RegistroScreen() {
     }
 
     setError('');
-    Alert.alert(
-      'Datos válidos',
-      'El formulario de registro ya valida los datos. Falta conectarlo al sistema de usuarios de Firebase.',
-    );
+    setCargando(true);
+
+    try {
+      const resultado = await createUserWithEmailAndPassword(auth, correo, contrasena);
+      await updateProfile(resultado.user, { displayName: nombre.trim() });
+      Alert.alert('Cuenta creada', 'Tu cuenta móvil se creó correctamente.', [
+        { text: 'Continuar', onPress: () => router.replace('/panel') },
+      ]);
+    } catch (errorAuth) {
+      setError(mensajeDeErrorAuth(errorAuth));
+    } finally {
+      setCargando(false);
+    }
   }
 
   return (
@@ -56,12 +70,9 @@ export default function RegistroScreen() {
         style={styles.pantalla}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <ScrollView
-          contentContainerStyle={styles.contenido}
-          keyboardShouldPersistTaps="handled"
-        >
+        <ScrollView contentContainerStyle={styles.contenido} keyboardShouldPersistTaps="handled">
           <View style={styles.formulario}>
-            <Pressable accessibilityRole="button" onPress={() => router.back()}>
+            <Pressable accessibilityRole="button" disabled={cargando} onPress={() => router.back()}>
               <Text style={styles.volver}>← Volver al inicio</Text>
             </Pressable>
 
@@ -79,6 +90,7 @@ export default function RegistroScreen() {
               placeholder="Ej. Norma García"
               placeholderTextColor="#64748b"
               autoCapitalize="words"
+              editable={!cargando}
               accessibilityLabel="Nombre completo"
             />
 
@@ -91,6 +103,7 @@ export default function RegistroScreen() {
               placeholderTextColor="#64748b"
               keyboardType="number-pad"
               autoCapitalize="none"
+              editable={!cargando}
               accessibilityLabel="Número de carnet"
             />
 
@@ -104,6 +117,7 @@ export default function RegistroScreen() {
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
+              editable={!cargando}
               accessibilityLabel="Contraseña"
             />
 
@@ -117,6 +131,7 @@ export default function RegistroScreen() {
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
+              editable={!cargando}
               accessibilityLabel="Confirmar contraseña"
             />
 
@@ -124,10 +139,17 @@ export default function RegistroScreen() {
 
             <Pressable
               accessibilityRole="button"
-              onPress={validarRegistro}
-              style={styles.boton}
+              disabled={cargando}
+              onPress={crearCuenta}
+              style={({ pressed }) => [
+                styles.boton,
+                cargando && styles.botonDeshabilitado,
+                pressed && !cargando && styles.presionado,
+              ]}
             >
-              <Text style={styles.textoBoton}>VALIDAR REGISTRO</Text>
+              <Text style={styles.textoBoton}>
+                {cargando ? 'CREANDO CUENTA...' : 'CREAR CUENTA'}
+              </Text>
             </Pressable>
           </View>
         </ScrollView>
@@ -159,14 +181,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   error: { color: '#b91c1c', fontSize: 14, marginBottom: 16 },
-  boton: {
-    minHeight: 52,
-    backgroundColor: '#c92327',
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    marginTop: 8,
-  },
+  boton: { minHeight: 52, backgroundColor: '#c92327', borderRadius: 8, alignItems: 'center', justifyContent: 'center', padding: 16, marginTop: 8 },
+  botonDeshabilitado: { opacity: 0.6 },
+  presionado: { opacity: 0.85 },
   textoBoton: { color: '#ffffff', fontSize: 15, fontWeight: '700', letterSpacing: 1 },
 });

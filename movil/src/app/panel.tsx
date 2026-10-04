@@ -1,5 +1,8 @@
 import { router } from 'expo-router';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { useEffect, useState } from 'react';
 import {
+    ActivityIndicator,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -7,6 +10,8 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { auth } from '@/lib/firebase';
 
 const pendientes = [
     { icono: '📢', titulo: 'Muro de novedades' },
@@ -19,6 +24,33 @@ const pendientes = [
 ];
 
 export default function PanelScreen() {
+    const [sesionLista, setSesionLista] = useState(false);
+
+    useEffect(() => {
+        return onAuthStateChanged(auth, (usuario) => {
+            if (!usuario) {
+                router.replace('/');
+                return;
+            }
+
+            setSesionLista(true);
+        });
+    }, []);
+
+    async function cerrarSesion() {
+        await signOut(auth);
+        router.replace('/');
+    }
+
+    if (!sesionLista) {
+        return (
+            <SafeAreaView style={styles.cargandoPantalla}>
+                <ActivityIndicator size="large" color="#c92327" />
+                <Text style={styles.cargandoTexto}>Verificando sesión...</Text>
+            </SafeAreaView>
+        );
+    }
+
     return (
         <SafeAreaView style={styles.pantalla}>
             <ScrollView contentContainerStyle={styles.contenido}>
@@ -73,7 +105,7 @@ export default function PanelScreen() {
 
                 <Pressable
                     accessibilityRole="button"
-                    onPress={() => router.replace('/')}
+                    onPress={cerrarSesion}
                     style={styles.volver}
                 >
                     <Text style={styles.volverTexto}>
@@ -86,6 +118,17 @@ export default function PanelScreen() {
 }
 
 const styles = StyleSheet.create({
+    cargandoPantalla: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f8fafc',
+    },
+    cargandoTexto: {
+        color: '#475569',
+        fontSize: 15,
+        marginTop: 12,
+    },
     pantalla: {
         flex: 1,
         backgroundColor: '#f8fafc',
