@@ -24,7 +24,36 @@ Plataforma web administrativa desarrollada en Next.js y Tailwind CSS, sincroniza
 * **Gestión de Evidencia Fotográfica:** Configuración del input oculto y diseño del botón para tomar o adjuntar la foto del ticket/recibo desde el dispositivo del usuario.
 * **Persistencia de Registros:** Implementación de la función para recolectar los datos del formulario (unidad, kilometraje, monto, nombre de foto) y guardar los cambios creando un nuevo registro exitoso en la colección `control_combustible` de la base de datos.
 
+## Aplicación móvil
+
+La carpeta [`movil/`](movil/) contiene la versión Android desarrollada con Expo y React Native para la entrega móvil del proyecto.
+
+### Funcionalidades implementadas
+* **Autenticación funcional:** Creación de cuentas e inicio de sesión mediante Firebase Authentication. El carnet se valida y se utiliza internamente para identificar la cuenta móvil.
+* **Sesión segura:** La sesión se mantiene en el dispositivo y puede cerrarse desde el panel principal.
+* **Panel principal:** Navegación hacia el módulo de Control de Combustible y visualización de los demás módulos planificados.
+* **Control de combustible:** Validación de unidad, kilometraje, monto y fotografía del ticket o bomba. La evidencia puede tomarse con la cámara o seleccionarse desde la galería.
+* **Validaciones de formulario:** Mensajes claros para campos incompletos, formato de carnet, contraseñas y datos de combustible inválidos.
+* **APK Android:** Configuración de EAS Build para generar una APK instalable de prueba sin requerir Expo Go.
+
+### Ejecución durante el desarrollo
+
+```bash
+cd movil
+npm install
+npx expo start
+```
+
+Para crear una APK de Android se utiliza el perfil `preview` de EAS Build:
+
+```bash
+npx eas-cli@latest build --platform android --profile preview
+```
+
 ##  Tecnologías Utilizadas
 * **Frontend:** React, Next.js (App Router), Tailwind CSS.
+* **Aplicación móvil:** React Native, Expo y Expo Router.
 * **Backend / BaaS:** Firebase Firestore (Base de datos NoSQL en tiempo real).
+* **Autenticación móvil:** Firebase Authentication y AsyncStorage.
+* **Compilación Android:** Expo Application Services (EAS Build).
 * **Lenguaje:** TypeScript / JavaScript.
