@@ -26,7 +26,7 @@ export default function HomeScreen() {
     const correo = correoInternoDeCarnet(carnet);
 
     if (!correo) {
-      setError('El carnet debe tener entre 5 y 10 números.');
+      setError('El carnet debe tener entre 4 y 10 números.');
       return;
     }
 

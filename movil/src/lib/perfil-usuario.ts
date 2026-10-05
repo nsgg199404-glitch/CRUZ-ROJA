@@ -14,7 +14,7 @@ export type PerfilUsuario = {
 export function carnetDesdeCorreo(correo: string | null | undefined) {
   if (!correo) return null;
 
-  const coincidencia = correo.match(/^(\d{5,10})@auth\.cruzroja\.invalid$/);
+  const coincidencia = correo.match(/^(\d{4,10})@auth\.cruzroja\.invalid$/);
   return coincidencia?.[1] ?? null;
 }
 

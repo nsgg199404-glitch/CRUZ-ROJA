@@ -7,7 +7,7 @@ export function normalizarCarnet(valor: string) {
 export function correoInternoDeCarnet(carnet: string) {
   const carnetLimpio = normalizarCarnet(carnet);
 
-  if (!/^\d{5,10}$/.test(carnetLimpio)) {
+  if (!/^\d{4,10}$/.test(carnetLimpio)) {
     return null;
   }
 
