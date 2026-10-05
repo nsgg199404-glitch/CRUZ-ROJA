@@ -78,13 +78,6 @@ export default function ModuloScreen() {
             </View>
           ))}
         </View>
-
-        <View style={styles.aviso}>
-          <Text style={styles.avisoTitulo}>MÓDULO HABILITADO PARA NAVEGACIÓN</Text>
-          <Text style={styles.avisoTexto}>
-            Esta pantalla ya forma parte del flujo móvil. Las funciones de registro y consulta se incorporarán de forma progresiva.
-          </Text>
-        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -103,7 +96,4 @@ const styles = StyleSheet.create({
   accion: { flexDirection: 'row', alignItems: 'flex-start', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#e2e8f0' },
   punto: { color: '#c92327', fontSize: 18, marginRight: 10 },
   textoAccion: { color: '#334155', fontSize: 16, flex: 1 },
-  aviso: { backgroundColor: '#fff7ed', borderRadius: 12, padding: 16, marginTop: 20 },
-  avisoTitulo: { color: '#9a3412', fontSize: 12, fontWeight: '700', marginBottom: 6 },
-  avisoTexto: { color: '#7c2d12', fontSize: 14, lineHeight: 21 },
 });

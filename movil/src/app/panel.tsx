@@ -89,13 +89,6 @@ export default function PanelScreen() {
                     </View>
                 ) : null}
 
-                <View style={styles.aviso}>
-                    <Text style={styles.avisoTitulo}>MODO DE PRUEBA</Text>
-                    <Text style={styles.avisoTexto}>
-                        Esta vista todavía no guarda registros en el sistema.
-                    </Text>
-                </View>
-
                 <View style={styles.modulos}>
                     {perfil && esAdministrador(perfil.rol) ? (
                         <Pressable
@@ -219,23 +212,6 @@ const styles = StyleSheet.create({
     },
     perfilNombre: { color: '#0f172a', fontSize: 15, fontWeight: '700' },
     perfilRol: { color: '#0369a1', fontSize: 13, marginTop: 4, textTransform: 'capitalize' },
-    aviso: {
-        backgroundColor: '#fff7ed',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 24,
-    },
-    avisoTitulo: {
-        color: '#9a3412',
-        fontSize: 12,
-        fontWeight: '700',
-        marginBottom: 6,
-    },
-    avisoTexto: {
-        color: '#7c2d12',
-        fontSize: 14,
-        lineHeight: 21,
-    },
     modulos: {
         flexDirection: 'row',
         flexWrap: 'wrap',
