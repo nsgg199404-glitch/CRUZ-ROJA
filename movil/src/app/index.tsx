@@ -1,48 +1,72 @@
 import { router } from 'expo-router';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
-  View,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { correoInternoDeCarnet, mensajeDeErrorAuth } from '@/lib/auth-carnet';
-import { auth } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
 
 export default function HomeScreen() {
   const [carnet, setCarnet] = useState('');
   const [contrasena, setContrasena] = useState('');
-  const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
 
+  const mostrarAlerta = (mensaje: string) => {
+    if (Platform.OS === 'web') {
+      window.alert(mensaje);
+    } else {
+      alert(mensaje);
+    }
+  };
+
   async function iniciarSesion() {
-    const correo = correoInternoDeCarnet(carnet);
-
-    if (!correo) {
-      setError('El carnet debe tener entre 5 y 10 números.');
+    if (!carnet || !contrasena) {
+      mostrarAlerta('Por favor ingresa tu carnet y contraseña.');
       return;
     }
 
-    if (!contrasena) {
-      setError('Escribí tu contraseña.');
-      return;
-    }
-
-    setError('');
     setCargando(true);
-
     try {
-      await signInWithEmailAndPassword(auth, correo, contrasena);
-      router.replace('/panel');
-    } catch (errorAuth) {
-      setError(mensajeDeErrorAuth(errorAuth));
+      // 1. Buscamos el carnet como TEXTO y la clave en el campo 'password'
+      const qTexto = query(
+        collection(db, 'usuarios'),
+        where('carnet', '==', carnet),
+        where('password', '==', contrasena)
+      );
+
+      let querySnapshot = await getDocs(qTexto);
+
+      // 2. Si no lo encuentra, lo buscamos como NÚMERO
+      if (querySnapshot.empty) {
+        const carnetNumero = Number(carnet);
+        const qNumero = query(
+          collection(db, 'usuarios'),
+          where('carnet', '==', carnetNumero),
+          where('password', '==', contrasena)
+        );
+        querySnapshot = await getDocs(qNumero);
+      }
+
+      // 3. Evaluamos si encontramos al usuario
+      if (!querySnapshot.empty) {
+        const datosUsuario = querySnapshot.docs[0].data();
+        await AsyncStorage.setItem('usuarioSesion', JSON.stringify(datosUsuario));
+        router.replace('/panel');
+      } else {
+        mostrarAlerta('Acceso Denegado: Carnet o contraseña incorrectos en la Base de Datos.');
+      }
+    } catch (error: any) {
+      console.error("Error detallado:", error);
+      mostrarAlerta('Error de Conexión: Revisa la consola web (F12) para más detalles.');
     } finally {
       setCargando(false);
     }
@@ -54,52 +78,37 @@ export default function HomeScreen() {
         style={styles.pantalla}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <ScrollView
-          contentContainerStyle={styles.contenido}
-          keyboardShouldPersistTaps="handled"
-        >
+        <View style={styles.contenido}>
+
+          <Text style={styles.titulo}>CONTROL OPERATIVO</Text>
+
           <View style={styles.formulario}>
-            <View style={styles.encabezado}>
-              <Text style={styles.titulo}>CONTROL</Text>
-              <Text style={styles.subtitulo}>OPERATIVO</Text>
-              <View style={styles.linea} />
-              <Text style={styles.institucion}>Cruz Roja Guazapa</Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.etiquetaFlotante}>Número de Carnet</Text>
+              <TextInput
+                style={styles.campo}
+                value={carnet}
+                onChangeText={setCarnet}
+                keyboardType="number-pad"
+                autoCapitalize="none"
+                editable={!cargando}
+              />
             </View>
 
-            <Text style={styles.etiqueta}>NÚMERO DE CARNET</Text>
-            <TextInput
-              style={styles.campo}
-              value={carnet}
-              onChangeText={setCarnet}
-              placeholder="Ej. 133171"
-              placeholderTextColor="#64748b"
-              keyboardType="number-pad"
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!cargando}
-              accessibilityLabel="Número de carnet"
-            />
-
-            <Text style={styles.etiqueta}>CONTRASEÑA</Text>
-            <TextInput
-              style={styles.campo}
-              value={contrasena}
-              onChangeText={setContrasena}
-              placeholder="Escribe tu contraseña"
-              placeholderTextColor="#64748b"
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoComplete="current-password"
-              editable={!cargando}
-              accessibilityLabel="Contraseña"
-            />
-
-            {error ? <Text style={styles.error}>{error}</Text> : null}
+            <View style={styles.inputContainer}>
+              <Text style={styles.etiquetaFlotante}>Contraseña</Text>
+              <TextInput
+                style={styles.campo}
+                value={contrasena}
+                onChangeText={setContrasena}
+                secureTextEntry
+                autoCapitalize="none"
+                editable={!cargando}
+              />
+              <Text style={styles.iconoOjo}>༗</Text>
+            </View>
 
             <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Iniciar sesión"
               disabled={cargando}
               onPress={iniciarSesion}
               style={({ pressed }) => [
@@ -109,21 +118,11 @@ export default function HomeScreen() {
               ]}
             >
               <Text style={styles.textoBoton}>
-                {cargando ? 'INGRESANDO...' : 'INICIAR SESIÓN'}
+                {cargando ? 'VERIFICANDO...' : 'INICIAR SESIÓN'}
               </Text>
             </Pressable>
-
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Crear cuenta"
-              disabled={cargando}
-              onPress={() => router.push('/registro')}
-              style={styles.botonRegistro}
-            >
-              <Text style={styles.textoRegistro}>CREAR CUENTA</Text>
-            </Pressable>
           </View>
-        </ScrollView>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -131,48 +130,15 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   pantalla: { flex: 1, backgroundColor: '#ffffff' },
-  contenido: { flexGrow: 1, justifyContent: 'center', padding: 24 },
-  formulario: { width: '100%', maxWidth: 420, alignSelf: 'center' },
-  encabezado: { alignItems: 'center', marginBottom: 40 },
-  titulo: { fontSize: 32, fontWeight: '700', letterSpacing: 5, color: '#c92327' },
-  subtitulo: { fontSize: 24, letterSpacing: 3, color: '#c92327', marginTop: 6 },
-  linea: { width: 48, height: 2, backgroundColor: '#c92327', marginVertical: 20 },
-  institucion: { fontSize: 16, color: '#475569' },
-  etiqueta: { fontSize: 13, fontWeight: '600', color: '#475569', marginBottom: 8 },
-  campo: {
-    minHeight: 52,
-    borderWidth: 1,
-    borderColor: '#94a3b8',
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#0f172a',
-    backgroundColor: '#ffffff',
-    marginBottom: 20,
-  },
-  error: { color: '#b91c1c', fontSize: 14, marginBottom: 16 },
-  boton: {
-    minHeight: 52,
-    backgroundColor: '#c92327',
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    marginTop: 8,
-  },
-  botonDeshabilitado: { opacity: 0.6 },
-  presionado: { opacity: 0.85 },
-  textoBoton: { color: '#ffffff', fontSize: 15, fontWeight: '700', letterSpacing: 1 },
-  botonRegistro: {
-    minHeight: 52,
-    borderWidth: 1,
-    borderColor: '#c92327',
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    marginTop: 14,
-  },
-  textoRegistro: { color: '#c92327', fontSize: 15, fontWeight: '700', letterSpacing: 1 },
+  contenido: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  titulo: { fontSize: 24, fontWeight: 'bold', color: '#C8102E', marginBottom: 40, letterSpacing: 0.5 },
+  formulario: { width: '100%', maxWidth: 400 },
+  inputContainer: { borderWidth: 1, borderColor: '#757575', borderRadius: 8, marginBottom: 20, paddingHorizontal: 12, paddingTop: 8, paddingBottom: 4, position: 'relative' },
+  etiquetaFlotante: { fontSize: 12, color: '#C8102E' },
+  campo: { fontSize: 16, color: '#000', paddingVertical: 4, outlineStyle: 'none' as any },
+  iconoOjo: { position: 'absolute', right: 15, top: 15, fontSize: 18 },
+  boton: { backgroundColor: '#C8102E', borderRadius: 6, alignItems: 'center', justifyContent: 'center', padding: 16, marginTop: 10, elevation: 3 },
+  botonDeshabilitado: { opacity: 0.7 },
+  presionado: { opacity: 0.9 },
+  textoBoton: { color: '#ffffff', fontSize: 16, fontWeight: 'bold' },
 });
