@@ -20,13 +20,13 @@ import {
 } from '@/lib/perfil-usuario';
 
 const pendientes = [
-    { icono: '📢', titulo: 'Muro de novedades' },
-    { icono: '📋', titulo: 'Bitácora de atenciones' },
-    { icono: '📦', titulo: 'Inventario' },
-    { icono: '🧰', titulo: 'Equipo APH' },
-    { icono: '🚑', titulo: 'Chequeo de ambulancias' },
-    { icono: '📖', titulo: 'Guía médica' },
-    { icono: '🛑', titulo: 'Cierre de turno' },
+    { id: 'novedades', icono: '📢', titulo: 'Muro de novedades' },
+    { id: 'bitacora', icono: '📋', titulo: 'Bitácora de atenciones' },
+    { id: 'inventario', icono: '📦', titulo: 'Inventario' },
+    { id: 'equipo-aph', icono: '🧰', titulo: 'Equipo APH' },
+    { id: 'ambulancias', icono: '🚑', titulo: 'Chequeo de ambulancias' },
+    { id: 'guia-medica', icono: '📖', titulo: 'Guía médica' },
+    { id: 'cierre-turno', icono: '🛑', titulo: 'Cierre de turno' },
 ];
 
 export default function PanelScreen() {
@@ -134,18 +134,25 @@ export default function PanelScreen() {
                     </Pressable>
 
                     {pendientes.map((modulo) => (
-                        <View
+                        <Pressable
                             key={modulo.titulo}
-                            style={[styles.tarjeta, styles.tarjetaPendiente]}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Abrir ${modulo.titulo}`}
+                            onPress={() => router.push(`/modulo/${modulo.id}` as never)}
+                            style={({ pressed }) => [
+                                styles.tarjeta,
+                                styles.tarjetaPendiente,
+                                pressed && styles.presionada,
+                            ]}
                         >
                             <Text style={styles.icono}>{modulo.icono}</Text>
                             <Text style={styles.nombrePendiente}>
                                 {modulo.titulo}
                             </Text>
                             <Text style={styles.detallePendiente}>
-                                Próximamente
+                                Abrir módulo
                             </Text>
-                        </View>
+                        </Pressable>
                     ))}
                 </View>
 
