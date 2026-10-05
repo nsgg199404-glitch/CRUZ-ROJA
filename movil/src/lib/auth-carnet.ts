@@ -11,7 +11,15 @@ export function correoInternoDeCarnet(carnet: string) {
     return null;
   }
 
-  return `${carnetLimpio}@auth.cruzroja.invalid`;
+  return `${carnetLimpio}@cruzroja.sv`;
+}
+
+export function correosDeCarnet(carnet: string) {
+  const correoPrincipal = correoInternoDeCarnet(carnet);
+  if (!correoPrincipal) return [];
+
+  const carnetLimpio = normalizarCarnet(carnet);
+  return [correoPrincipal, `${carnetLimpio}@auth.cruzroja.invalid`];
 }
 
 export function mensajeDeErrorAuth(error: unknown) {

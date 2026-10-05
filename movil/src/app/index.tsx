@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { correoInternoDeCarnet, mensajeDeErrorAuth } from '@/lib/auth-carnet';
+import { correosDeCarnet, mensajeDeErrorAuth } from '@/lib/auth-carnet';
 import { auth } from '@/lib/firebase';
 
 export default function HomeScreen() {
@@ -23,9 +23,9 @@ export default function HomeScreen() {
   const [cargando, setCargando] = useState(false);
 
   async function iniciarSesion() {
-    const correo = correoInternoDeCarnet(carnet);
+    const correos = correosDeCarnet(carnet);
 
-    if (!correo) {
+    if (correos.length === 0) {
       setError('El carnet debe tener entre 4 y 10 números.');
       return;
     }
@@ -39,8 +39,19 @@ export default function HomeScreen() {
     setCargando(true);
 
     try {
-      await signInWithEmailAndPassword(auth, correo, contrasena);
-      router.replace('/panel');
+      let ultimoError: unknown;
+
+      for (const correo of correos) {
+        try {
+          await signInWithEmailAndPassword(auth, correo, contrasena);
+          router.replace('/panel');
+          return;
+        } catch (errorAuth) {
+          ultimoError = errorAuth;
+        }
+      }
+
+      setError(mensajeDeErrorAuth(ultimoError));
     } catch (errorAuth) {
       setError(mensajeDeErrorAuth(errorAuth));
     } finally {
