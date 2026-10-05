@@ -113,15 +113,9 @@ export default function HomeScreen() {
               </Text>
             </Pressable>
 
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Crear cuenta"
-              disabled={cargando}
-              onPress={() => router.push('/registro')}
-              style={styles.botonRegistro}
-            >
-              <Text style={styles.textoRegistro}>CREAR CUENTA</Text>
-            </Pressable>
+            <Text style={styles.avisoRegistro}>
+              Las cuentas son creadas por el administrador.
+            </Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -164,15 +158,5 @@ const styles = StyleSheet.create({
   botonDeshabilitado: { opacity: 0.6 },
   presionado: { opacity: 0.85 },
   textoBoton: { color: '#ffffff', fontSize: 15, fontWeight: '700', letterSpacing: 1 },
-  botonRegistro: {
-    minHeight: 52,
-    borderWidth: 1,
-    borderColor: '#c92327',
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    marginTop: 14,
-  },
-  textoRegistro: { color: '#c92327', fontSize: 15, fontWeight: '700', letterSpacing: 1 },
+  avisoRegistro: { color: '#64748b', fontSize: 13, textAlign: 'center', marginTop: 18 },
 });

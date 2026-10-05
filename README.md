@@ -29,10 +29,12 @@ Plataforma web administrativa desarrollada en Next.js y Tailwind CSS, sincroniza
 La carpeta [`movil/`](movil/) contiene la versión Android desarrollada con Expo y React Native para la entrega móvil del proyecto.
 
 ### Funcionalidades implementadas
-* **Autenticación funcional:** Creación de cuentas e inicio de sesión mediante Firebase Authentication. El carnet se valida y se utiliza internamente para identificar la cuenta móvil.
+* **Autenticación funcional:** Inicio de sesión mediante Firebase Authentication. El carnet se valida y se utiliza internamente para identificar la cuenta móvil.
+* **Acceso según rol:** La aplicación consulta el rol en la colección `usuarios`. Solo los perfiles `administrador` y `superadmin` pueden abrir el registro de usuarios; los demás perfiles acceden únicamente a sus módulos operativos.
 * **Sesión segura:** La sesión se mantiene en el dispositivo y puede cerrarse desde el panel principal.
 * **Panel principal:** Navegación hacia el módulo de Control de Combustible y visualización de los demás módulos planificados.
 * **Control de combustible:** Validación de unidad, kilometraje, monto y fotografía del ticket o bomba. La evidencia puede tomarse con la cámara o seleccionarse desde la galería.
+* **Registro administrado:** El administrador crea cuentas nuevas con rol inicial de voluntario y la aplicación regresa al inicio al completar el registro.
 * **Validaciones de formulario:** Mensajes claros para campos incompletos, formato de carnet, contraseñas y datos de combustible inválidos.
 * **APK Android:** Configuración de EAS Build para generar una APK instalable de prueba sin requerir Expo Go.
 

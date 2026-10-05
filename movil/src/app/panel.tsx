@@ -12,6 +12,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { auth } from '@/lib/firebase';
+import {
+    carnetDesdeCorreo,
+    esAdministrador,
+    obtenerPerfilUsuario,
+    PerfilUsuario,
+} from '@/lib/perfil-usuario';
 
 const pendientes = [
     { icono: '📢', titulo: 'Muro de novedades' },
@@ -25,15 +31,29 @@ const pendientes = [
 
 export default function PanelScreen() {
     const [sesionLista, setSesionLista] = useState(false);
+    const [perfil, setPerfil] = useState<PerfilUsuario | null>(null);
 
     useEffect(() => {
-        return onAuthStateChanged(auth, (usuario) => {
+        return onAuthStateChanged(auth, async (usuario) => {
             if (!usuario) {
                 router.replace('/');
                 return;
             }
 
-            setSesionLista(true);
+            const carnet = carnetDesdeCorreo(usuario.email);
+            if (!carnet) {
+                await signOut(auth);
+                router.replace('/');
+                return;
+            }
+
+            try {
+                setPerfil(await obtenerPerfilUsuario(carnet));
+            } catch {
+                setPerfil({ carnet, nombre: usuario.displayName ?? '', rol: 'voluntario' });
+            } finally {
+                setSesionLista(true);
+            }
         });
     }, []);
 
@@ -60,6 +80,15 @@ export default function PanelScreen() {
                     Seleccioná el módulo que querés utilizar.
                 </Text>
 
+                {perfil ? (
+                    <View style={styles.perfil}>
+                        <Text style={styles.perfilNombre}>
+                            {perfil.nombre || `Carnet ${perfil.carnet}`}
+                        </Text>
+                        <Text style={styles.perfilRol}>Rol: {perfil.rol}</Text>
+                    </View>
+                ) : null}
+
                 <View style={styles.aviso}>
                     <Text style={styles.avisoTitulo}>MODO DE PRUEBA</Text>
                     <Text style={styles.avisoTexto}>
@@ -68,6 +97,23 @@ export default function PanelScreen() {
                 </View>
 
                 <View style={styles.modulos}>
+                    {perfil && esAdministrador(perfil.rol) ? (
+                        <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel="Registrar usuario"
+                            onPress={() => router.push('/registro')}
+                            style={({ pressed }) => [
+                                styles.tarjeta,
+                                styles.tarjetaAdministrador,
+                                pressed && styles.presionada,
+                            ]}
+                        >
+                            <Text style={styles.icono}>👤</Text>
+                            <Text style={styles.nombreActivo}>Registrar usuario</Text>
+                            <Text style={styles.detalleActivo}>Solo administrador</Text>
+                        </Pressable>
+                    ) : null}
+
                     <Pressable
                         accessibilityRole="button"
                         accessibilityLabel="Abrir control de combustible"
@@ -158,6 +204,14 @@ const styles = StyleSheet.create({
         marginTop: 8,
         marginBottom: 24,
     },
+    perfil: {
+        backgroundColor: '#e0f2fe',
+        borderRadius: 12,
+        padding: 14,
+        marginBottom: 16,
+    },
+    perfilNombre: { color: '#0f172a', fontSize: 15, fontWeight: '700' },
+    perfilRol: { color: '#0369a1', fontSize: 13, marginTop: 4, textTransform: 'capitalize' },
     aviso: {
         backgroundColor: '#fff7ed',
         borderRadius: 12,
@@ -192,6 +246,9 @@ const styles = StyleSheet.create({
     },
     tarjetaActiva: {
         backgroundColor: '#c92327',
+    },
+    tarjetaAdministrador: {
+        backgroundColor: '#475569',
     },
     tarjetaPendiente: {
         backgroundColor: '#e2e8f0',

@@ -1,7 +1,9 @@
 import { router } from 'expo-router';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { useState } from 'react';
+import { createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from 'firebase/auth';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -15,7 +17,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { correoInternoDeCarnet, mensajeDeErrorAuth } from '@/lib/auth-carnet';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
+import { carnetDesdeCorreo, esAdministrador, obtenerPerfilUsuario } from '@/lib/perfil-usuario';
 
 export default function RegistroScreen() {
   const [nombre, setNombre] = useState('');
@@ -24,6 +27,29 @@ export default function RegistroScreen() {
   const [confirmacion, setConfirmacion] = useState('');
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
+  const [autorizado, setAutorizado] = useState(false);
+
+  useEffect(() => {
+    return onAuthStateChanged(auth, async (usuario) => {
+      const carnetAdministrador = carnetDesdeCorreo(usuario?.email);
+      if (!carnetAdministrador) {
+        router.replace('/');
+        return;
+      }
+
+      try {
+        const perfil = await obtenerPerfilUsuario(carnetAdministrador);
+        if (!esAdministrador(perfil.rol)) {
+          router.replace('/panel');
+          return;
+        }
+
+        setAutorizado(true);
+      } catch {
+        router.replace('/panel');
+      }
+    });
+  }, []);
 
   async function crearCuenta() {
     const correo = correoInternoDeCarnet(carnet);
@@ -54,14 +80,30 @@ export default function RegistroScreen() {
     try {
       const resultado = await createUserWithEmailAndPassword(auth, correo, contrasena);
       await updateProfile(resultado.user, { displayName: nombre.trim() });
-      Alert.alert('Cuenta creada', 'Tu cuenta móvil se creó correctamente.', [
-        { text: 'Continuar', onPress: () => router.replace('/panel') },
+      await setDoc(doc(db, 'usuarios', carnet.trim()), {
+        carnet: carnet.trim(),
+        nombre: nombre.trim(),
+        rol: 'voluntario',
+        creadoEn: serverTimestamp(),
+      }, { merge: true });
+      await signOut(auth);
+      Alert.alert('Cuenta creada', 'Se asignó el rol de voluntario. Iniciá sesión nuevamente como administrador.', [
+        { text: 'Continuar', onPress: () => router.replace('/') },
       ]);
     } catch (errorAuth) {
       setError(mensajeDeErrorAuth(errorAuth));
     } finally {
       setCargando(false);
     }
+  }
+
+  if (!autorizado) {
+    return (
+      <SafeAreaView style={styles.cargandoPantalla}>
+        <ActivityIndicator size="large" color="#c92327" />
+        <Text style={styles.cargandoTexto}>Verificando permisos...</Text>
+      </SafeAreaView>
+    );
   }
 
   return (
@@ -77,7 +119,7 @@ export default function RegistroScreen() {
             </Pressable>
 
             <View style={styles.encabezado}>
-              <Text style={styles.titulo}>CREAR CUENTA</Text>
+              <Text style={styles.titulo}>REGISTRAR USUARIO</Text>
               <View style={styles.linea} />
               <Text style={styles.institucion}>Cruz Roja Guazapa</Text>
             </View>
@@ -160,6 +202,8 @@ export default function RegistroScreen() {
 
 const styles = StyleSheet.create({
   pantalla: { flex: 1, backgroundColor: '#ffffff' },
+  cargandoPantalla: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff' },
+  cargandoTexto: { color: '#475569', fontSize: 15, marginTop: 12 },
   contenido: { flexGrow: 1, justifyContent: 'center', padding: 24 },
   formulario: { width: '100%', maxWidth: 420, alignSelf: 'center' },
   volver: { color: '#475569', fontSize: 15, fontWeight: '600', marginBottom: 28 },
