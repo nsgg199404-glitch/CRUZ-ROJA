@@ -17,7 +17,7 @@ export default function Login() {
     setError("");
 
     try {
-      // 1. Buscamos el documento en la colección "usuarios" usando el carnet que se escribió
+      // 1. Buscamos el documento en la colección "usuarios" 
       const docRef = doc(db, "usuarios", carnet.trim());
       const docSnap = await getDoc(docRef);
 
@@ -28,7 +28,7 @@ export default function Login() {
         // 3. Comparamos la contraseña escrita con la que está guardada en Firestore
         if (userData.password === password) {
 
-          // ---> AQUÍ ESTÁ LA LÍNEA NUEVA <---
+
           // Guardamos el carnet en la memoria del navegador para que el Dashboard lo lea
           localStorage.setItem("carnetUsuario", carnet.trim());
 

@@ -181,37 +181,60 @@ export default function PanelScreen() {
                         <Text style={styles.iconoGrid}>𖣠</Text>
                         <Text style={styles.textoGrid}>BITÁCORA DE{'\n'}ATENCIONES</Text>
                     </Pressable>
-                    <Pressable style={styles.tarjetaGrid}>
+                    <Pressable
+                        style={styles.tarjetaGrid}
+                        onPress={() => router.push('/inventario' as any)}
+                    >
                         <Text style={styles.iconoGrid}>𓃮</Text>
-                        <Text style={styles.textoGrid}>VER{'\n'}INVENTARIO</Text>
+                        <Text style={styles.textoGrid}>INVENTARIO{'\n'}APH</Text>
                     </Pressable>
-                    <Pressable style={styles.tarjetaGrid}>
-                        <Text style={styles.iconoGrid}>𓃠</Text>
-                        <Text style={styles.textoGrid}>GESTIONAR{'\n'}EQUIPO APH</Text>
-                    </Pressable>
-                    <Pressable style={styles.tarjetaGrid}>
+                    {esAdmin && (
+                        <Pressable
+                            style={styles.tarjetaGrid}
+                            onPress={() => router.push('/gestionar_equipo' as any)}
+                        >
+                            <Text style={styles.iconoGrid}>𓃠</Text>
+                            <Text style={styles.textoGrid}>GESTIONAR{'\n'}EQUIPO APH</Text>
+                        </Pressable>
+                    )}
+                    <Pressable
+                        style={styles.tarjetaGrid}
+                        onPress={() => router.push('/chequeo' as any)}
+                    >
                         <Text style={styles.iconoGrid}>࿊</Text>
                         <Text style={styles.textoGrid}>CHEQUEO DE{'\n'}AMBULANCIA</Text>
                     </Pressable>
-                    <Pressable style={styles.tarjetaGrid}>
+                    <Pressable
+                        style={styles.tarjetaGrid}
+                        onPress={() => router.push('/combustible' as any)}
+                    >
                         <Text style={styles.iconoGrid}>࿆</Text>
                         <Text style={styles.textoGrid}>CONTROL DE{'\n'}COMBUSTIBLE</Text>
                     </Pressable>
-                    <Pressable style={styles.tarjetaGrid}>
-                        <Text style={styles.iconoGrid}>≡</Text>
+                    <Pressable
+                        style={styles.tarjetaGrid}
+                        onPress={() => router.push('/guia_medica' as any)}
+                    >
+                        <Text style={[styles.iconoGrid, { color: '#C8102E', fontSize: 30, fontWeight: 'bold' }]}>+</Text>
                         <Text style={styles.textoGrid}>GUÍA{'\n'}MÉDICA</Text>
                     </Pressable>
-                    <Pressable style={styles.tarjetaGrid}>
-                        <Text style={styles.iconoGrid}>≡</Text>
-                        <Text style={styles.textoGrid}>CIERRE{'\n'}TURNO</Text>
+                    <Pressable
+                        style={styles.tarjetaGrid}
+                        onPress={() => router.push('/cierre_turno' as any)}
+                    >
+                        <Text style={styles.iconoGrid}>=</Text>
+                        <Text style={styles.textoGrid}>CIERRE DE{'\n'}TURNO</Text>
                     </Pressable>
                 </View>
 
                 {/* BOTONES ADMINISTRACIÓN */}
                 {esAdmin && (
                     <View style={styles.listaAdmin}>
-                        <Pressable style={styles.botonLargo}>
-                            <Text style={styles.textoBotonLargo}>𓃗 GENERAR REPORTES (PDF)</Text>
+                        <Pressable
+                            style={styles.botonLargo}
+                            onPress={() => router.push('/informe_mensual' as any)}
+                        >
+                            <Text style={styles.textoBotonLargo}> ּ ֶָ֢.GENERAR REPORTES (PDF)</Text>
                         </Pressable>
                         <Pressable style={styles.botonLargo}>
                             <Text style={styles.textoBotonLargo}>☕︎ GESTIONAR USUARIOS</Text>
