@@ -96,7 +96,7 @@ export default function PanelScreen() {
         <SafeAreaView style={styles.pantalla}>
             <ScrollView contentContainerStyle={styles.contenido} showsVerticalScrollIndicator={false}>
 
-                {/* ENCABEZADO Y PERFIL */}
+
                 <View style={styles.header}>
                     <Text style={styles.saludo}>¡Hola, {usuario.nombre || 'Voluntario'}!</Text>
                     <Text style={styles.infoPersonal}>Carnet: {usuario.carnet}</Text>
@@ -112,7 +112,7 @@ export default function PanelScreen() {
                         <FlatList
                             data={banners}
                             horizontal
-                            pagingEnabled // Hace que se mueva de imagen en imagen (tipo slider)
+                            pagingEnabled
                             showsHorizontalScrollIndicator={false}
                             keyExtractor={(_, index) => index.toString()}
                             renderItem={({ item }) => (
@@ -136,7 +136,7 @@ export default function PanelScreen() {
                         </View>
                     )}
 
-                    {/* Botón flotante de editar (Solo para Admins) */}
+
                     {esAdmin && (
                         <Pressable
                             style={styles.botonEditarBanner}
@@ -147,7 +147,7 @@ export default function PanelScreen() {
                     )}
                 </View>
 
-                {/* MODAL PARA AGRANDAR IMAGEN */}
+
                 <Modal visible={modalVisible} transparent={true} animationType="fade">
                     <View style={styles.modalFondo}>
                         <Pressable style={styles.modalBotonCerrar} onPress={() => setModalVisible(false)}>
@@ -159,14 +159,13 @@ export default function PanelScreen() {
                     </View>
                 </Modal>
 
-                {/* BOTÓN CALENDARIO GIGANTE */}
+
                 <Pressable style={styles.botonCalendario} onPress={() => router.push('/calendario' as any)}>
                     <Text style={styles.textoBotonCalendario}>📅 VER CALENDARIO DE TURNOS</Text>
                 </Pressable>
 
                 <Text style={styles.tituloSeccion}>MENÚ OPERATIVO</Text>
 
-                {/* GRID DE BOTONES */}
                 <View style={styles.gridModulos}>
                     <Pressable
                         style={styles.tarjetaGrid}
@@ -227,25 +226,29 @@ export default function PanelScreen() {
                     </Pressable>
                 </View>
 
-                {/* BOTONES ADMINISTRACIÓN */}
+
                 {esAdmin && (
                     <View style={styles.listaAdmin}>
                         <Pressable
                             style={styles.botonLargo}
-                            onPress={() => router.push('/informe_mensual' as any)}
-                        >
+                            onPress={() => router.push('/informe_mensual' as any)}>
                             <Text style={styles.textoBotonLargo}> ּ ֶָ֢.GENERAR REPORTES (PDF)</Text>
                         </Pressable>
-                        <Pressable style={styles.botonLargo}>
+                        <Pressable
+                            style={styles.botonLargo}
+                            onPress={() => router.push('/gestion_usuarios' as any)}  >
+
                             <Text style={styles.textoBotonLargo}>☕︎ GESTIONAR USUARIOS</Text>
                         </Pressable>
-                        <Pressable style={styles.botonLargo}>
+                        <Pressable style={styles.botonLargo} onPress={() => router.push('/toma_asistencia' as any)}>
                             <Text style={styles.textoBotonLargo}>𖦹 TOMAR ASISTENCIA</Text>
                         </Pressable>
-                        <Pressable style={styles.botonLargo}>
+                        <Pressable style={styles.botonLargo} onPress={() => router.push('/servicio_social' as any)}>
                             <Text style={styles.textoBotonLargo}>𓆣 PANEL SERVICIO SOCIAL</Text>
                         </Pressable>
-                        <Pressable style={styles.botonLargo}>
+
+                        <Pressable style={styles.botonLargo} onPress={() => router.push('/historial_firmas' as any)}>
+
                             <Text style={styles.textoBotonLargo}>☁︎ VER HISTORIAL DE FIRMAS</Text>
                         </Pressable>
 
