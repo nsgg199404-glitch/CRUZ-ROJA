@@ -14,6 +14,8 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 
 const UNIDADES = ['CR-237', 'CR-55', 'CR-4'];
 
@@ -140,23 +142,43 @@ export default function CombustibleScreen() {
         }
     }
 
-    function comprobarFormulario() {
-        const error = validarDatos(
-            kilometraje,
-            monto,
-            foto !== null,
-        );
+    async function guardarRegistro() {
+        const error = validarDatos(kilometraje, monto, foto !== null);
 
         setMensaje(error);
 
         if (error) return;
 
-        const importe = Number(monto.trim().replace(',', '.'));
+        const usuario = auth.currentUser;
 
-        Alert.alert(
-            'Prueba válida — sin guardar',
-            `Unidad: ${unidad}\nKilometraje: ${Number(kilometraje)} km\nMonto: $${importe.toFixed(2)}\nTicket: seleccionado\n\nTodavía no se creó un registro en el sistema.`,
-        );
+        if (!usuario) {
+            setMensaje('Tu sesión terminó. Volvé a iniciar sesión.');
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, 'combustible'), {
+                usuarioId: usuario.uid,
+                correoUsuario: usuario.email ?? '',
+                unidad,
+                kilometraje: Number(kilometraje),
+                monto: Number(monto.trim().replace(',', '.')),
+                tieneFoto: foto !== null,
+                creadoEn: serverTimestamp(),
+            });
+
+            Alert.alert(
+                'Registro guardado',
+                'El control de combustible fue almacenado en Firestore.',
+            );
+
+            setKilometraje('');
+            setMonto('');
+            setFoto(null);
+            setMensaje('');
+        } catch {
+            setMensaje('No se pudo guardar el registro. Intentá nuevamente.');
+        }
     }
 
     return (
@@ -188,8 +210,7 @@ export default function CombustibleScreen() {
                     </Text>
 
                     <Text style={styles.aviso}>
-                        Modo de prueba. Los datos y la foto no se envían al
-                        sistema.
+                        Completá los datos para guardar el registro en Firestore.
                     </Text>
 
                     <Text style={styles.etiqueta}>Unidad abastecida</Text>
@@ -337,14 +358,23 @@ export default function CombustibleScreen() {
                         accessibilityRole="button"
                         accessibilityState={{ disabled: abriendoFoto }}
                         disabled={abriendoFoto}
-                        onPress={comprobarFormulario}
+                        onPress={guardarRegistro}
                         style={[
                             styles.botonPrincipal,
                             abriendoFoto && styles.deshabilitado,
                         ]}
                     >
                         <Text style={styles.textoBlanco}>
-                            COMPROBAR DATOS DE PRUEBA
+                           GUARDAR REGISTRO
+                        </Text>
+                    </Pressable>
+                    <Pressable
+                        accessibilityRole="button"
+                        onPress={() => router.push('/historial-combustible')}
+                        style={styles.botonHistorial}
+                    >
+                        <Text style={styles.textoBlanco}>
+                            VER HISTORIAL DE COMBUSTIBLE
                         </Text>
                     </Pressable>
                 </ScrollView>
@@ -352,7 +382,6 @@ export default function CombustibleScreen() {
         </SafeAreaView>
     );
 }
-
 const styles = StyleSheet.create({
     pantalla: {
         flex: 1,
@@ -434,6 +463,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 16,
+    },
+    botonHistorial: {
+        minHeight: 52,
+        backgroundColor: '#475569',
+        borderRadius: 8,
+        padding: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 12,
     },
     textoBlanco: {
         color: '#ffffff',
