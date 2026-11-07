@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
     ActivityIndicator,
     FlatList,
@@ -11,14 +12,15 @@ import {
 import { router } from 'expo-router';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 
-import { auth, db } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
 
 type RegistroCombustible = {
     id: string;
     unidad?: string;
-    kilometraje?: number;
+    kilometraje?: string;
     monto?: number;
-    creadoEn?: { toDate?: () => Date };
+    fechaHora?: string;
+    timestamp?: number;
 };
 
 export default function HistorialCombustibleScreen() {
@@ -27,56 +29,45 @@ export default function HistorialCombustibleScreen() {
     const [mensaje, setMensaje] = useState('');
 
     useEffect(() => {
-        const usuario = auth.currentUser;
+        async function cargarHistorial() {
+            const sesion = await AsyncStorage.getItem('usuarioSesion');
+            if (!sesion) {
+                setMensaje('Tu sesión terminó. Volvé a iniciar sesión.');
+                setCargando(false);
+                return;
+            }
 
-        if (!usuario) {
-            setMensaje('Tu sesión terminó. Volvé a iniciar sesión.');
-            setCargando(false);
-            return;
+            const usuario = JSON.parse(sesion);
+            const consulta = query(
+                collection(db, 'control_combustible'),
+                where('usuario', '==', String(usuario.carnet)),
+            );
+
+            return onSnapshot(
+                consulta,
+                (resultado) => {
+                    const lista = resultado.docs.map((documento) => ({
+                        id: documento.id,
+                        ...documento.data(),
+                    })) as RegistroCombustible[];
+
+                    lista.sort((a, b) => (b.timestamp ?? 0) - (a.timestamp ?? 0));
+                    setRegistros(lista);
+                    setCargando(false);
+                },
+                () => {
+                    setMensaje('No se pudo cargar el historial.');
+                    setCargando(false);
+                },
+            );
         }
 
-        const consulta = query(
-            collection(db, 'combustible'),
-            where('usuarioId', '==', usuario.uid),
-        );
-
-        const cancelar = onSnapshot(
-            consulta,
-            (resultado) => {
-                const lista = resultado.docs.map((documento) => ({
-                    id: documento.id,
-                    ...documento.data(),
-                })) as RegistroCombustible[];
-
-                lista.sort((a, b) => {
-                    const fechaA = a.creadoEn?.toDate?.().getTime() ?? 0;
-                    const fechaB = b.creadoEn?.toDate?.().getTime() ?? 0;
-                    return fechaB - fechaA;
-                });
-
-                setRegistros(lista);
-                setCargando(false);
-            },
-            () => {
-                setMensaje('No se pudo cargar el historial.');
-                setCargando(false);
-            },
-        );
-
-        return cancelar;
-    }, []);
-
-    function mostrarFecha(registro: RegistroCombustible) {
-        const fecha = registro.creadoEn?.toDate?.();
-
-        if (!fecha) return 'Fecha pendiente';
-
-        return fecha.toLocaleDateString('es-SV', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
+        let cancelar: (() => void) | undefined;
+        cargarHistorial().then((suscripcion) => {
+            cancelar = suscripcion;
         });
-    }
+        return () => cancelar?.();
+    }, []);
 
     return (
         <SafeAreaView style={styles.pantalla}>
@@ -86,13 +77,12 @@ export default function HistorialCombustibleScreen() {
                 </Pressable>
 
                 <Text style={styles.titulo}>Historial de combustible</Text>
-
                 <Text style={styles.descripcion}>
-                    Aquí aparecen tus registros guardados en Firestore.
+                    Registros guardados con tu carnet en Firestore.
                 </Text>
 
                 {cargando ? (
-                    <ActivityIndicator size="large" color="#c92327" />
+                    <ActivityIndicator size="large" color="#C8102E" />
                 ) : mensaje ? (
                     <Text style={styles.mensaje}>{mensaje}</Text>
                 ) : (
@@ -106,18 +96,10 @@ export default function HistorialCombustibleScreen() {
                         }
                         renderItem={({ item }) => (
                             <View style={styles.tarjeta}>
-                                <Text style={styles.unidad}>
-                                    {item.unidad ?? 'Unidad no registrada'}
-                                </Text>
-                                <Text style={styles.dato}>
-                                    Kilometraje: {item.kilometraje ?? 0} km
-                                </Text>
-                                <Text style={styles.dato}>
-                                    Monto: ${Number(item.monto ?? 0).toFixed(2)}
-                                </Text>
-                                <Text style={styles.fecha}>
-                                    {mostrarFecha(item)}
-                                </Text>
+                                <Text style={styles.unidad}>{item.unidad ?? 'Unidad no registrada'}</Text>
+                                <Text style={styles.dato}>Kilometraje: {item.kilometraje ?? '0'} km</Text>
+                                <Text style={styles.dato}>Monto: ${Number(item.monto ?? 0).toFixed(2)}</Text>
+                                <Text style={styles.fecha}>{item.fechaHora ?? 'Fecha pendiente'}</Text>
                             </View>
                         )}
                     />
@@ -128,70 +110,16 @@ export default function HistorialCombustibleScreen() {
 }
 
 const styles = StyleSheet.create({
-    pantalla: {
-        flex: 1,
-        backgroundColor: '#f8fafc',
-    },
-    contenido: {
-        flex: 1,
-        padding: 24,
-    },
-    volver: {
-        minHeight: 48,
-        justifyContent: 'center',
-    },
-    volverTexto: {
-        color: '#c92327',
-        fontSize: 15,
-        fontWeight: '600',
-    },
-    titulo: {
-        color: '#c92327',
-        fontSize: 26,
-        fontWeight: '700',
-        marginTop: 12,
-    },
-    descripcion: {
-        color: '#475569',
-        fontSize: 15,
-        lineHeight: 22,
-        marginTop: 10,
-        marginBottom: 24,
-    },
-    tarjeta: {
-        backgroundColor: '#ffffff',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
-        borderLeftWidth: 5,
-        borderLeftColor: '#c92327',
-    },
-    unidad: {
-        color: '#0f172a',
-        fontSize: 18,
-        fontWeight: '700',
-        marginBottom: 8,
-    },
-    dato: {
-        color: '#334155',
-        fontSize: 15,
-        marginTop: 4,
-    },
-    fecha: {
-        color: '#64748b',
-        fontSize: 13,
-        marginTop: 10,
-    },
-    vacio: {
-        color: '#64748b',
-        fontSize: 16,
-        textAlign: 'center',
-        marginTop: 36,
-    },
-    mensaje: {
-        color: '#b91c1c',
-        fontSize: 16,
-        textAlign: 'center',
-        marginTop: 36,
-    },
+    pantalla: { flex: 1, backgroundColor: '#F8F9FA' },
+    contenido: { flex: 1, padding: 24 },
+    volver: { minHeight: 48, justifyContent: 'center' },
+    volverTexto: { color: '#C8102E', fontSize: 15, fontWeight: '600' },
+    titulo: { color: '#C8102E', fontSize: 26, fontWeight: '700', marginTop: 12 },
+    descripcion: { color: '#475569', fontSize: 15, lineHeight: 22, marginTop: 10, marginBottom: 24 },
+    tarjeta: { backgroundColor: '#FFF', borderRadius: 12, padding: 16, marginBottom: 12, borderLeftWidth: 5, borderLeftColor: '#C8102E' },
+    unidad: { color: '#0F172A', fontSize: 18, fontWeight: '700', marginBottom: 8 },
+    dato: { color: '#334155', fontSize: 15, marginTop: 4 },
+    fecha: { color: '#64748B', fontSize: 13, marginTop: 10 },
+    vacio: { color: '#64748B', fontSize: 16, textAlign: 'center', marginTop: 36 },
+    mensaje: { color: '#B91C1C', fontSize: 16, textAlign: 'center', marginTop: 36 },
 });

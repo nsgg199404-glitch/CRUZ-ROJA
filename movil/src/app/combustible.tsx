@@ -213,6 +213,10 @@ export default function CombustibleScreen() {
                     )}
                 </Pressable>
 
+                <Pressable style={styles.botonHistorial} onPress={() => router.push('/historial-combustible' as any)}>
+                    <Text style={styles.textoBotonBlanco}>VER HISTORIAL DE COMBUSTIBLE</Text>
+                </Pressable>
+
             </ScrollView>
 
             {/* Modal para Unidad */}
@@ -260,6 +264,7 @@ const styles = StyleSheet.create({
 
     botonGrisOscuro: { flexDirection: 'row', backgroundColor: '#455A64', paddingVertical: 16, borderRadius: 4, justifyContent: 'center', alignItems: 'center', marginBottom: 20, elevation: 2 },
     botonRojo: { backgroundColor: '#C8102E', paddingVertical: 16, borderRadius: 4, alignItems: 'center', elevation: 3 },
+    botonHistorial: { backgroundColor: '#455A64', paddingVertical: 16, borderRadius: 4, alignItems: 'center', marginTop: 12, elevation: 2 },
     textoBotonBlanco: { color: '#FFF', fontWeight: 'bold', fontSize: 15, letterSpacing: 1 },
 
     cajaPreviaFoto: { height: 200, borderRadius: 8, marginBottom: 15, overflow: 'hidden' },
