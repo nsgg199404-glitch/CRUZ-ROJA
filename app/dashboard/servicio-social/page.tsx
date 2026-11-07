@@ -337,7 +337,8 @@ export default function ServicioSocialPage() {
                         {historial.length === 0 && <p className="text-center text-gray-500 mt-10">No hay registros de historial.</p>}
                     </div>
                 )}
-
+                { 'Manejo de implermantcio'//Corre institucionales y implementación de equipos 
+}
                 {vistaActual === "reportes" && (
                     <div className="no-impresion pb-24">
                         <p className="text-gray-600 text-sm mb-4 bg-blue-50 p-3 rounded border border-blue-100">
