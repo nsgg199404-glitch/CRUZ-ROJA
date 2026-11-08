@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import {
   GoogleAuthProvider,
   signInWithCredential,
@@ -49,17 +49,10 @@ export default function HomeScreen() {
 
   async function buscarUsuarioPorCarnet(carnetIngresado: string) {
     const carnetLimpio = carnetIngresado.trim();
-    let consulta = await getDocs(
-      query(collection(db, 'usuarios'), where('carnet', '==', carnetLimpio))
-    );
-
-    if (consulta.empty && /^\d+$/.test(carnetLimpio)) {
-      consulta = await getDocs(
-        query(collection(db, 'usuarios'), where('carnet', '==', Number(carnetLimpio)))
-      );
-    }
-
-    return consulta.empty ? null : consulta.docs[0].data();
+    // Los perfiles existentes usan el carnet como ID del documento, por
+    // ejemplo: usuarios/133171. Leerlo directamente evita una consulta global.
+    const perfil = await getDoc(doc(db, 'usuarios', carnetLimpio));
+    return perfil.exists() ? perfil.data() : null;
   }
 
   async function buscarUsuarioPorCorreoGoogle(correo: string) {
