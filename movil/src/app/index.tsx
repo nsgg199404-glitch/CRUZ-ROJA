@@ -1,6 +1,17 @@
 import { router } from 'expo-router';
 import { collection, getDocs, query, where } from 'firebase/firestore';
+import {
+  GoogleAuthProvider,
+  signInWithCredential,
+  signInWithEmailAndPassword,
+  signOut,
+} from 'firebase/auth';
 import { useState } from 'react';
+import {
+  GoogleSignin,
+  isSuccessResponse,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -13,7 +24,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { db } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
+import { correoInternoDeCarnet, mensajeDeErrorAuth } from '@/lib/auth-carnet';
+
+// Este identificador pertenece al proyecto de Firebase de Cruz Roja. Permite
+// que Google entregue un token que Firebase Authentication puede verificar.
+GoogleSignin.configure({
+  webClientId: '531896448688-iam6hbuqu8i1al4pa6qhvsnjj6uhal8l.apps.googleusercontent.com',
+  offlineAccess: false,
+});
 
 export default function HomeScreen() {
   const [carnet, setCarnet] = useState('');
@@ -28,45 +47,113 @@ export default function HomeScreen() {
     }
   };
 
+  async function buscarUsuarioPorCarnet(carnetIngresado: string) {
+    const carnetLimpio = carnetIngresado.trim();
+    let consulta = await getDocs(
+      query(collection(db, 'usuarios'), where('carnet', '==', carnetLimpio))
+    );
+
+    if (consulta.empty && /^\d+$/.test(carnetLimpio)) {
+      consulta = await getDocs(
+        query(collection(db, 'usuarios'), where('carnet', '==', Number(carnetLimpio)))
+      );
+    }
+
+    return consulta.empty ? null : consulta.docs[0].data();
+  }
+
+  async function buscarUsuarioPorCorreoGoogle(correo: string) {
+    const consulta = await getDocs(
+      query(
+        collection(db, 'usuarios'),
+        where('correoGoogle', '==', correo.trim().toLowerCase())
+      )
+    );
+
+    return consulta.empty ? null : consulta.docs[0].data();
+  }
+
   async function iniciarSesion() {
     if (!carnet || !contrasena) {
       mostrarAlerta('Por favor ingresa tu carnet y contraseña.');
       return;
     }
 
+    const correoInterno = correoInternoDeCarnet(carnet);
+    if (!correoInterno) {
+      mostrarAlerta('El carnet debe contener entre 4 y 10 números.');
+      return;
+    }
+
     setCargando(true);
     try {
-      // 1. Buscamos el carnet como TEXTO y la clave en el campo 'password'
-      const qTexto = query(
-        collection(db, 'usuarios'),
-        where('carnet', '==', carnet),
-        where('password', '==', contrasena)
-      );
+      // El usuario escribe su carnet, pero Firebase Authentication valida la
+      // cuenta técnica carnet@cruzroja.sv sin mostrar ese correo en pantalla.
+      await signInWithEmailAndPassword(auth, correoInterno, contrasena);
 
-      let querySnapshot = await getDocs(qTexto);
-
-      // 2. Si no lo encuentra, lo buscamos como NÚMERO
-      if (querySnapshot.empty) {
-        const carnetNumero = Number(carnet);
-        const qNumero = query(
-          collection(db, 'usuarios'),
-          where('carnet', '==', carnetNumero),
-          where('password', '==', contrasena)
-        );
-        querySnapshot = await getDocs(qNumero);
+      const datosUsuario = await buscarUsuarioPorCarnet(carnet);
+      if (!datosUsuario) {
+        await signOut(auth);
+        mostrarAlerta('La cuenta existe, pero no tiene perfil autorizado en el sistema.');
+        return;
       }
 
-      // 3. Evaluamos si encontramos al usuario
-      if (!querySnapshot.empty) {
-        const datosUsuario = querySnapshot.docs[0].data();
-        await AsyncStorage.setItem('usuarioSesion', JSON.stringify(datosUsuario));
-        router.replace('/panel');
-      } else {
-        mostrarAlerta('Acceso Denegado: Carnet o contraseña incorrectos en la Base de Datos.');
-      }
+      await AsyncStorage.setItem('usuarioSesion', JSON.stringify(datosUsuario));
+      router.replace('/panel');
     } catch (error: any) {
-      console.error("Error detallado:", error);
-      mostrarAlerta('Error de Conexión: Revisa la consola web (F12) para más detalles.');
+      console.error('Error de autenticación:', error);
+      mostrarAlerta(mensajeDeErrorAuth(error));
+    } finally {
+      setCargando(false);
+    }
+  }
+
+  async function iniciarSesionConGoogle() {
+    if (Platform.OS === 'web') {
+      mostrarAlerta('El acceso con Google se prueba desde la APK de Android.');
+      return;
+    }
+
+    setCargando(true);
+    try {
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const respuestaGoogle = await GoogleSignin.signIn();
+
+      if (!isSuccessResponse(respuestaGoogle)) {
+        return;
+      }
+
+      const idToken = respuestaGoogle.data.idToken;
+      if (!idToken) {
+        throw new Error('Google no entregó un token de identidad.');
+      }
+
+      const credencial = GoogleAuthProvider.credential(idToken);
+      const resultado = await signInWithCredential(auth, credencial);
+      const correoGoogle = resultado.user.email;
+
+      if (!correoGoogle) {
+        await signOut(auth);
+        mostrarAlerta('La cuenta de Google no tiene un correo disponible.');
+        return;
+      }
+
+      // Un administrador debe agregar correoGoogle al documento del usuario.
+      // Así Google no crea cuentas nuevas ni da acceso a personas no autorizadas.
+      const datosUsuario = await buscarUsuarioPorCorreoGoogle(correoGoogle);
+      if (!datosUsuario) {
+        await GoogleSignin.signOut();
+        await signOut(auth);
+        mostrarAlerta('Tu correo Google no está autorizado. Pedí al administrador que lo vincule a tu usuario.');
+        return;
+      }
+
+      await AsyncStorage.setItem('usuarioSesion', JSON.stringify(datosUsuario));
+      router.replace('/panel');
+    } catch (error: any) {
+      console.error('Error con Google:', error);
+      if (error?.code === statusCodes.SIGN_IN_CANCELLED) return;
+      mostrarAlerta('No se pudo iniciar sesión con Google. Revisá tu conexión e intentá de nuevo.');
     } finally {
       setCargando(false);
     }
@@ -121,6 +208,18 @@ export default function HomeScreen() {
                 {cargando ? 'VERIFICANDO...' : 'INICIAR SESIÓN'}
               </Text>
             </Pressable>
+
+            <Pressable
+              disabled={cargando}
+              onPress={iniciarSesionConGoogle}
+              style={({ pressed }) => [
+                styles.botonGoogle,
+                cargando && styles.botonDeshabilitado,
+                pressed && !cargando && styles.presionado,
+              ]}
+            >
+              <Text style={styles.textoBotonGoogle}>Continuar con Google</Text>
+            </Pressable>
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -138,7 +237,9 @@ const styles = StyleSheet.create({
   campo: { fontSize: 16, color: '#000', paddingVertical: 4, outlineStyle: 'none' as any },
   iconoOjo: { position: 'absolute', right: 15, top: 15, fontSize: 18 },
   boton: { backgroundColor: '#C8102E', borderRadius: 6, alignItems: 'center', justifyContent: 'center', padding: 16, marginTop: 10, elevation: 3 },
+  botonGoogle: { backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#4285F4', borderRadius: 6, alignItems: 'center', justifyContent: 'center', padding: 16, marginTop: 14 },
   botonDeshabilitado: { opacity: 0.7 },
   presionado: { opacity: 0.9 },
   textoBoton: { color: '#ffffff', fontSize: 16, fontWeight: 'bold' },
+  textoBotonGoogle: { color: '#4285F4', fontSize: 16, fontWeight: 'bold' },
 });

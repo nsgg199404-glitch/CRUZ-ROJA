@@ -1,6 +1,8 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import {
     ActivityIndicator,
     Pressable,
@@ -15,7 +17,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { db } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 
 export default function PanelScreen() {
     const [usuario, setUsuario] = useState<any>(null);
@@ -65,6 +67,10 @@ export default function PanelScreen() {
 
     async function cerrarSesion() {
         await AsyncStorage.removeItem('usuarioSesion');
+        await signOut(auth);
+        if (Platform.OS !== 'web') {
+            await GoogleSignin.signOut();
+        }
         router.replace('/');
     }
 
