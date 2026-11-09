@@ -11,7 +11,6 @@
       "icon": "./assets/expo.icon"
     },
     "android": {
-      "googleServicesFile": "./google-services.json",
       "package": "com.nsgg199404.cruzrojamovil",
       "versionCode": 7,
       "adaptiveIcon": {
@@ -28,7 +27,6 @@
     },
     "plugins": [
       "expo-router",
-      "@react-native-google-signin/google-signin",
       [
         "expo-splash-screen",
         {
