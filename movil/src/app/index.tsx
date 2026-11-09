@@ -153,10 +153,7 @@ export default function HomeScreen() {
     } catch (error: any) {
       console.error('Error con Google:', error);
       if (error?.code === statusCodes.SIGN_IN_CANCELLED) return;
-      // Se muestra el código técnico solo si ocurre un fallo. Así podemos
-      // diferenciar una configuración de Android de un problema de conexión.
-      const detalle = error?.code || error?.message || 'error desconocido';
-      mostrarAlerta(`No se pudo iniciar sesión con Google. Código: ${detalle}`);
+      mostrarAlerta('No se pudo iniciar sesión con Google. Revisá tu conexión e intentá de nuevo.');
     } finally {
       setCargando(false);
     }
