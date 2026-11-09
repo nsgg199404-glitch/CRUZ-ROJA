@@ -7,11 +7,19 @@ export function normalizarCarnet(valor: string) {
 export function correoInternoDeCarnet(carnet: string) {
   const carnetLimpio = normalizarCarnet(carnet);
 
-  if (!/^\d{5,10}$/.test(carnetLimpio)) {
+  if (!/^\d{4,10}$/.test(carnetLimpio)) {
     return null;
   }
 
-  return `${carnetLimpio}@auth.cruzroja.invalid`;
+  return `${carnetLimpio}@cruzroja.sv`;
+}
+
+export function correosDeCarnet(carnet: string) {
+  const correoPrincipal = correoInternoDeCarnet(carnet);
+  if (!correoPrincipal) return [];
+
+  const carnetLimpio = normalizarCarnet(carnet);
+  return [correoPrincipal, `${carnetLimpio}@auth.cruzroja.invalid`];
 }
 
 export function mensajeDeErrorAuth(error: unknown) {
