@@ -29,7 +29,7 @@ export default function HomeScreen() {
     }
   };
 
-  // 1. INICIO CON CARNET Y CONTRASEÑA (Buscando directo en Firestore como lo tenías tú)
+  // 1. INICIO CON CARNET Y CONTRASEÑA 
   async function iniciarSesion() {
     if (!carnet || !contrasena) {
       mostrarAlerta('Por favor ingresa tu carnet y contraseña.');
@@ -38,7 +38,7 @@ export default function HomeScreen() {
 
     setCargando(true);
     try {
-      // Buscamos al usuario por su carnet en tu colección 'usuarios'
+
       const qTexto = query(collection(db, 'usuarios'), where('carnet', '==', carnet));
       let querySnapshot = await getDocs(qTexto);
 
@@ -154,7 +154,7 @@ export default function HomeScreen() {
               ]}
             >
               <Text style={styles.textoBotonGoogle}>
-                🌐 Ingresar como Voluntario
+                ɢ Ingresar con Google
               </Text>
             </Pressable>
 
