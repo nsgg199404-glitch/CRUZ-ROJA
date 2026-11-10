@@ -3,13 +3,13 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBwRTp1aiLnPqVKgq4oXzg-1ZlbYPwISNw",
+    apiKey: "AIzaSyBwRTp1aiLnPgVKgq4oXzg-lZlbYPwISNw",
     authDomain: "cruz-roja-guazapa.firebaseapp.com",
     projectId: "cruz-roja-guazapa",
     storageBucket: "cruz-roja-guazapa.firebasestorage.app",
     messagingSenderId: "531896448688",
-    appId: "1:531896448688:web:27158f3b0faaf220886d75",
-    measurementId: "G-ZD9SKMJKMB"
+    appId: "1:531896448688:web:f42fa653814d5c71886d75",
+    measurementId: "G-009WB5WC6W"
 };
 
 const app = initializeApp(firebaseConfig);

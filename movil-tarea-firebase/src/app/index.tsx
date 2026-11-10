@@ -1,8 +1,7 @@
-import { router } from 'expo-router';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-// ¡Aquí ya agregué el browserPopupRedirectResolver!
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { browserPopupRedirectResolver, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { router } from 'expo-router';
+import { browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -30,7 +29,7 @@ export default function HomeScreen() {
     }
   };
 
-  // 1. INICIO DE SESIÓN CON CARNET (ENMASCARADO)
+  // 1. INICIO CON CARNET Y CONTRASEÑA (Buscando directo en Firestore como lo tenías tú)
   async function iniciarSesion() {
     if (!carnet || !contrasena) {
       mostrarAlerta('Por favor ingresa tu carnet y contraseña.');
@@ -39,9 +38,7 @@ export default function HomeScreen() {
 
     setCargando(true);
     try {
-      const correoEnmascarado = `${carnet}@cruzroja.sv`;
-      await signInWithEmailAndPassword(auth, correoEnmascarado, contrasena);
-
+      // Buscamos al usuario por su carnet en tu colección 'usuarios'
       const qTexto = query(collection(db, 'usuarios'), where('carnet', '==', carnet));
       let querySnapshot = await getDocs(qTexto);
 
@@ -52,33 +49,47 @@ export default function HomeScreen() {
 
       if (!querySnapshot.empty) {
         const datosUsuario = querySnapshot.docs[0].data();
-        await AsyncStorage.setItem('usuarioSesion', JSON.stringify(datosUsuario));
-        router.replace('/panel');
+
+        // ¡AQUÍ ESTÁ LA SOLUCIÓN! Comparamos la contraseña de la pantalla con el campo 'password' de tu base de datos
+        if (datosUsuario.password === contrasena) {
+          await AsyncStorage.setItem('usuarioSesion', JSON.stringify(datosUsuario));
+          router.replace('/panel');
+        } else {
+          mostrarAlerta('Contraseña incorrecta.');
+        }
       } else {
-        mostrarAlerta('Usuario autenticado, pero no se encontraron sus datos en Firestore.');
+        mostrarAlerta('El número de carnet no existe.');
       }
     } catch (error: any) {
-      console.error("Error de Autenticación:", error);
-      mostrarAlerta('Acceso Denegado: Carnet o contraseña incorrectos.');
+      console.error("Error consultando la base de datos:", error);
+      mostrarAlerta('Hubo un problema al conectar con la base de datos.');
     } finally {
       setCargando(false);
     }
   }
 
-  // 2. INICIO DE SESIÓN CON GOOGLE (CORREGIDO)
+  // 2. INICIO CON GOOGLE (ASIGNA ROL VOLUNTARIO)
   async function iniciarSesionConGoogle() {
     setCargando(true);
     try {
       const provider = new GoogleAuthProvider();
-      // ¡Aquí ya agregué el resolver para evitar el error de pantalla blanca!
-      await signInWithPopup(auth, provider, browserPopupRedirectResolver);
+      const resultado = await signInWithPopup(auth, provider, browserPopupRedirectResolver);
 
-      await AsyncStorage.setItem('usuarioSesion', JSON.stringify({ nombre: "Usuario Google", rol: "Invitado" }));
+      const usuarioGoogle = resultado.user;
+
+      const perfilVoluntario = {
+        uid: usuarioGoogle.uid,
+        nombre: usuarioGoogle.displayName || 'Voluntario',
+        correo: usuarioGoogle.email,
+        rol: 'voluntario'
+      };
+
+      await AsyncStorage.setItem('usuarioSesion', JSON.stringify(perfilVoluntario));
       router.replace('/panel');
 
     } catch (error: any) {
       console.error("Error con Google:", error);
-      mostrarAlerta('No se pudo iniciar sesión con Google. Revisa la consola.');
+      mostrarAlerta('No se pudo iniciar sesión con Google.');
     } finally {
       setCargando(false);
     }
@@ -117,7 +128,6 @@ export default function HomeScreen() {
                 autoCapitalize="none"
                 editable={!cargando}
               />
-              <Text style={styles.iconoOjo}>༗</Text>
             </View>
 
             <Pressable
@@ -144,7 +154,7 @@ export default function HomeScreen() {
               ]}
             >
               <Text style={styles.textoBotonGoogle}>
-                🌐 Continuar con Google
+                🌐 Ingresar como Voluntario
               </Text>
             </Pressable>
 
@@ -160,12 +170,11 @@ const styles = StyleSheet.create({
   contenido: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   titulo: { fontSize: 24, fontWeight: 'bold', color: '#C8102E', marginBottom: 40, letterSpacing: 0.5 },
   formulario: { width: '100%', maxWidth: 400 },
-  inputContainer: { borderWidth: 1, borderColor: '#757575', borderRadius: 8, marginBottom: 20, paddingHorizontal: 12, paddingTop: 8, paddingBottom: 4, position: 'relative' },
+  inputContainer: { borderWidth: 1, borderColor: '#757575', borderRadius: 8, marginBottom: 20, paddingHorizontal: 12, paddingTop: 8, paddingBottom: 4 },
   etiquetaFlotante: { fontSize: 12, color: '#C8102E' },
-  campo: { fontSize: 16, color: '#000', paddingVertical: 4, outlineStyle: 'none' as any },
-  iconoOjo: { position: 'absolute', right: 15, top: 15, fontSize: 18 },
-  boton: { backgroundColor: '#C8102E', borderRadius: 6, alignItems: 'center', justifyContent: 'center', padding: 16, marginTop: 10, elevation: 3 },
-  botonGoogle: { backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#4285F4', borderRadius: 6, alignItems: 'center', justifyContent: 'center', padding: 16, marginTop: 15, elevation: 1 },
+  campo: { fontSize: 16, color: '#000', paddingVertical: 4 },
+  boton: { backgroundColor: '#C8102E', borderRadius: 6, alignItems: 'center', justifyContent: 'center', padding: 16, marginTop: 10 },
+  botonGoogle: { backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#4285F4', borderRadius: 6, alignItems: 'center', justifyContent: 'center', padding: 16, marginTop: 15 },
   botonDeshabilitado: { opacity: 0.7 },
   presionado: { opacity: 0.9 },
   textoBoton: { color: '#ffffff', fontSize: 16, fontWeight: 'bold' },
