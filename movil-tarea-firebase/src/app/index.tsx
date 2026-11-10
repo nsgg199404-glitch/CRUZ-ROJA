@@ -28,14 +28,15 @@ export default function HomeScreen() {
 
 
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: '531896448688-web.apps.googleusercontent.com',
-    androidClientId: '531896448688-android.apps.googleusercontent.com',
+    webClientId: '531896448688-iam6hbuqu8i1al4pa6qhvsnjj6uhal8l.apps.googleusercontent.com',
   });
 
   useEffect(() => {
     if (response?.type === 'success') {
       const { id_token } = response.params;
-      manejarAutenticacionGoogleMovil(id_token);
+      if (id_token) {
+        manejarAutenticacionGoogleMovil(id_token);
+      }
     }
   }, [response]);
 
@@ -47,7 +48,7 @@ export default function HomeScreen() {
     }
   };
 
-  // 1. INICIO CON CARNET Y CONTRASEÑA
+
   async function iniciarSesion() {
     if (!carnet || !contrasena) {
       mostrarAlerta('Por favor ingresa tu carnet y contraseña.');
@@ -84,7 +85,7 @@ export default function HomeScreen() {
     }
   }
 
-  // 2. INICIO CON GOOGLE NATIVO PARA MÓVIL
+
   async function manejarAutenticacionGoogleMovil(idToken: string) {
     setCargando(true);
     try {
@@ -169,7 +170,7 @@ export default function HomeScreen() {
               ]}
             >
               <Text style={styles.textoBotonGoogle}>
-                ɢ Ingresar con google
+                🌐 Ingresar como Voluntario (Google)
               </Text>
             </Pressable>
 
