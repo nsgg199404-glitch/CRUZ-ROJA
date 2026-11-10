@@ -170,7 +170,7 @@ export default function HomeScreen() {
               ]}
             >
               <Text style={styles.textoBotonGoogle}>
-                🌐 Ingresar como Voluntario (Google)
+                Ingresar con Google
               </Text>
             </Pressable>
 
