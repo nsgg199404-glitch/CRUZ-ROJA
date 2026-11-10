@@ -1,8 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Google from 'expo-auth-session/providers/google';
 import { router } from 'expo-router';
-import { browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import * as WebBrowser from 'expo-web-browser';
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -16,10 +18,26 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { auth, db } from '@/lib/firebase';
 
+
+WebBrowser.maybeCompleteAuthSession();
+
 export default function HomeScreen() {
   const [carnet, setCarnet] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [cargando, setCargando] = useState(false);
+
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    webClientId: '531896448688-web.apps.googleusercontent.com',
+    androidClientId: '531896448688-android.apps.googleusercontent.com',
+  });
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { id_token } = response.params;
+      manejarAutenticacionGoogleMovil(id_token);
+    }
+  }, [response]);
 
   const mostrarAlerta = (mensaje: string) => {
     if (Platform.OS === 'web') {
@@ -29,7 +47,7 @@ export default function HomeScreen() {
     }
   };
 
-  // 1. INICIO CON CARNET Y CONTRASEÑA 
+  // 1. INICIO CON CARNET Y CONTRASEÑA
   async function iniciarSesion() {
     if (!carnet || !contrasena) {
       mostrarAlerta('Por favor ingresa tu carnet y contraseña.');
@@ -38,7 +56,6 @@ export default function HomeScreen() {
 
     setCargando(true);
     try {
-
       const qTexto = query(collection(db, 'usuarios'), where('carnet', '==', carnet));
       let querySnapshot = await getDocs(qTexto);
 
@@ -50,7 +67,6 @@ export default function HomeScreen() {
       if (!querySnapshot.empty) {
         const datosUsuario = querySnapshot.docs[0].data();
 
-        // ¡AQUÍ ESTÁ LA SOLUCIÓN! Comparamos la contraseña de la pantalla con el campo 'password' de tu base de datos
         if (datosUsuario.password === contrasena) {
           await AsyncStorage.setItem('usuarioSesion', JSON.stringify(datosUsuario));
           router.replace('/panel');
@@ -68,13 +84,12 @@ export default function HomeScreen() {
     }
   }
 
-  // 2. INICIO CON GOOGLE (ASIGNA ROL VOLUNTARIO)
-  async function iniciarSesionConGoogle() {
+  // 2. INICIO CON GOOGLE NATIVO PARA MÓVIL
+  async function manejarAutenticacionGoogleMovil(idToken: string) {
     setCargando(true);
     try {
-      const provider = new GoogleAuthProvider();
-      const resultado = await signInWithPopup(auth, provider, browserPopupRedirectResolver);
-
+      const credential = GoogleAuthProvider.credential(idToken);
+      const resultado = await signInWithCredential(auth, credential);
       const usuarioGoogle = resultado.user;
 
       const perfilVoluntario = {
@@ -86,10 +101,9 @@ export default function HomeScreen() {
 
       await AsyncStorage.setItem('usuarioSesion', JSON.stringify(perfilVoluntario));
       router.replace('/panel');
-
-    } catch (error: any) {
-      console.error("Error con Google:", error);
-      mostrarAlerta('No se pudo iniciar sesión con Google.');
+    } catch (error) {
+      console.error("Error con Google Móvil:", error);
+      mostrarAlerta("No se pudo autenticar con Google en el dispositivo.");
     } finally {
       setCargando(false);
     }
@@ -144,9 +158,10 @@ export default function HomeScreen() {
               </Text>
             </Pressable>
 
+
             <Pressable
-              disabled={cargando}
-              onPress={iniciarSesionConGoogle}
+              disabled={!request || cargando}
+              onPress={() => promptAsync()}
               style={({ pressed }) => [
                 styles.botonGoogle,
                 cargando && styles.botonDeshabilitado,
@@ -154,7 +169,7 @@ export default function HomeScreen() {
               ]}
             >
               <Text style={styles.textoBotonGoogle}>
-                ɢ Ingresar con Google
+                ɢ Ingresar con google
               </Text>
             </Pressable>
 
