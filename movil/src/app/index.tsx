@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { useState } from 'react';
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import { useState, useEffect } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -12,13 +13,32 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
 
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
+
+// Cierra el navegador correctamente después del login de Google en móvil
+WebBrowser.maybeCompleteAuthSession();
 
 export default function HomeScreen() {
   const [carnet, setCarnet] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [cargando, setCargando] = useState(false);
+
+  // Configuración de Google para App Móvil con Expo y tu ID real
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    webClientId: '531896448688-iam6hbuqu8i1al4pa6qhvsnjj6uhal8l.apps.googleusercontent.com',
+  });
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { id_token } = response.params;
+      if (id_token) {
+        manejarAutenticacionGoogleMovil(id_token);
+      }
+    }
+  }, [response]);
 
   const mostrarAlerta = (mensaje: string) => {
     if (Platform.OS === 'web') {
@@ -28,6 +48,7 @@ export default function HomeScreen() {
     }
   };
 
+  // 1. INICIO CON CARNET Y CONTRASEÑA 
   async function iniciarSesion() {
     if (!carnet || !contrasena) {
       mostrarAlerta('Por favor ingresa tu carnet y contraseña.');
@@ -36,16 +57,13 @@ export default function HomeScreen() {
 
     setCargando(true);
     try {
-      // 1. Buscamos el carnet como TEXTO y la clave en el campo 'password'
       const qTexto = query(
         collection(db, 'usuarios'),
         where('carnet', '==', carnet),
         where('password', '==', contrasena)
       );
-
       let querySnapshot = await getDocs(qTexto);
 
-      // 2. Si no lo encuentra, lo buscamos como NÚMERO
       if (querySnapshot.empty) {
         const carnetNumero = Number(carnet);
         const qNumero = query(
@@ -56,7 +74,6 @@ export default function HomeScreen() {
         querySnapshot = await getDocs(qNumero);
       }
 
-      // 3. Evaluamos si encontramos al usuario
       if (!querySnapshot.empty) {
         const datosUsuario = querySnapshot.docs[0].data();
         await AsyncStorage.setItem('usuarioSesion', JSON.stringify(datosUsuario));
@@ -66,7 +83,32 @@ export default function HomeScreen() {
       }
     } catch (error: any) {
       console.error("Error detallado:", error);
-      mostrarAlerta('Error de Conexión: Revisa la consola web (F12) para más detalles.');
+      mostrarAlerta('Error de Conexión: Revisa la consola para más detalles.');
+    } finally {
+      setCargando(false);
+    }
+  }
+
+  // 2. INICIO CON GOOGLE NATIVO PARA MÓVIL
+  async function manejarAutenticacionGoogleMovil(idToken: string) {
+    setCargando(true);
+    try {
+      const credential = GoogleAuthProvider.credential(idToken);
+      const resultado = await signInWithCredential(auth, credential);
+      const usuarioGoogle = resultado.user;
+
+      const perfilVoluntario = {
+        uid: usuarioGoogle.uid,
+        nombre: usuarioGoogle.displayName || 'Voluntario',
+        correo: usuarioGoogle.email,
+        rol: 'voluntario'
+      };
+
+      await AsyncStorage.setItem('usuarioSesion', JSON.stringify(perfilVoluntario));
+      router.replace('/panel');
+    } catch (error) {
+      console.error("Error con Google Móvil:", error);
+      mostrarAlerta("No se pudo autenticar con Google en el dispositivo.");
     } finally {
       setCargando(false);
     }
@@ -79,7 +121,6 @@ export default function HomeScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.contenido}>
-
           <Text style={styles.titulo}>CONTROL OPERATIVO</Text>
 
           <View style={styles.formulario}>
@@ -121,12 +162,29 @@ export default function HomeScreen() {
                 {cargando ? 'VERIFICANDO...' : 'INICIAR SESIÓN'}
               </Text>
             </Pressable>
+
+            {/* Botón de Google  */}
+            <Pressable
+              disabled={!request || cargando}
+              onPress={() => promptAsync()}
+              style={({ pressed }) => [
+                styles.botonGoogle,
+                cargando && styles.botonDeshabilitado,
+                pressed && !cargando && styles.presionado,
+              ]}
+            >
+              <Text style={styles.textoBotonGoogle}>
+                🌐 Ingresar con (Google)
+              </Text>
+            </Pressable>
+
           </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   pantalla: { flex: 1, backgroundColor: '#ffffff' },
@@ -135,10 +193,12 @@ const styles = StyleSheet.create({
   formulario: { width: '100%', maxWidth: 400 },
   inputContainer: { borderWidth: 1, borderColor: '#757575', borderRadius: 8, marginBottom: 20, paddingHorizontal: 12, paddingTop: 8, paddingBottom: 4, position: 'relative' },
   etiquetaFlotante: { fontSize: 12, color: '#C8102E' },
-  campo: { fontSize: 16, color: '#000', paddingVertical: 4, outlineStyle: 'none' as any },
+  campo: { fontSize: 16, color: '#000', paddingVertical: 4 },
   iconoOjo: { position: 'absolute', right: 15, top: 15, fontSize: 18 },
   boton: { backgroundColor: '#C8102E', borderRadius: 6, alignItems: 'center', justifyContent: 'center', padding: 16, marginTop: 10, elevation: 3 },
+  botonGoogle: { backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#4285F4', borderRadius: 6, alignItems: 'center', justifyContent: 'center', padding: 16, marginTop: 15 },
   botonDeshabilitado: { opacity: 0.7 },
   presionado: { opacity: 0.9 },
   textoBoton: { color: '#ffffff', fontSize: 16, fontWeight: 'bold' },
+  textoBotonGoogle: { color: '#4285F4', fontSize: 16, fontWeight: 'bold' },
 });
