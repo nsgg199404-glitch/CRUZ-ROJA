@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -13,33 +13,20 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
 
+// LIBRERÍA NATIVA DE GOOGLE
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { db, auth } from '@/lib/firebase';
 
-
-WebBrowser.maybeCompleteAuthSession();
+// CONFIGURACIÓN NATIVA: ¡Solo requiere el Web Client ID!
+GoogleSignin.configure({
+  webClientId: '531896448688-iam6hbuqu8i1al4pa6qhvsnjj6uhal8l.apps.googleusercontent.com',
+});
 
 export default function HomeScreen() {
   const [carnet, setCarnet] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [cargando, setCargando] = useState(false);
-
-
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: '531896448688-iam6hbuqu8i1al4pa6qhvsnjj6uhal8l.apps.googleusercontent.com',
-    androidClientId: '531896448688-6ov9je29k41q91q7p0i40v28l6h2gii5.apps.googleusercontent.com',
-  });
-
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { id_token } = response.params;
-      if (id_token) {
-        manejarAutenticacionGoogleMovil(id_token);
-      }
-    }
-  }, [response]);
 
   const mostrarAlerta = (mensaje: string) => {
     if (Platform.OS === 'web') {
@@ -80,36 +67,46 @@ export default function HomeScreen() {
         await AsyncStorage.setItem('usuarioSesion', JSON.stringify(datosUsuario));
         router.replace('/panel');
       } else {
-        mostrarAlerta('Acceso Denegado: Carnet o contraseña incorrectos en la Base de Datos.');
+        mostrarAlerta('Acceso Denegado: Carnet o contraseña incorrectos en la BD.');
       }
     } catch (error: any) {
       console.error("Error detallado:", error);
-      mostrarAlerta('Error de Conexión: Revisa la consola para más detalles.');
+      mostrarAlerta('Error de Conexión: Revisa la consola.');
     } finally {
       setCargando(false);
     }
   }
 
-  // 2. INICIO CON GOOGLE NATIVO PARA MÓVIL
-  async function manejarAutenticacionGoogleMovil(idToken: string) {
+  // 2. INICIO CON GOOGLE NATIVO (La solución final)
+  async function iniciarSesionGoogle() {
     setCargando(true);
     try {
-      const credential = GoogleAuthProvider.credential(idToken);
-      const resultado = await signInWithCredential(auth, credential);
-      const usuarioGoogle = resultado.user;
+      await GoogleSignin.hasPlayServices();
+      await GoogleSignin.signIn();
 
-      const perfilVoluntario = {
-        uid: usuarioGoogle.uid,
-        nombre: usuarioGoogle.displayName || 'Voluntario',
-        correo: usuarioGoogle.email,
-        rol: 'voluntario'
-      };
+      // Extraemos el token compatible con cualquier versión de la librería
+      const { idToken } = await GoogleSignin.getTokens();
 
-      await AsyncStorage.setItem('usuarioSesion', JSON.stringify(perfilVoluntario));
-      router.replace('/panel');
-    } catch (error) {
-      console.error("Error con Google Móvil:", error);
-      mostrarAlerta("No se pudo autenticar con Google en el dispositivo.");
+      if (idToken) {
+        const credential = GoogleAuthProvider.credential(idToken);
+        const resultado = await signInWithCredential(auth, credential);
+        const usuarioGoogle = resultado.user;
+
+        const perfilVoluntario = {
+          uid: usuarioGoogle.uid,
+          nombre: usuarioGoogle.displayName || 'Voluntario',
+          correo: usuarioGoogle.email,
+          rol: 'voluntario'
+        };
+
+        await AsyncStorage.setItem('usuarioSesion', JSON.stringify(perfilVoluntario));
+        router.replace('/panel');
+      } else {
+        mostrarAlerta("No se recibió respuesta de Google.");
+      }
+    } catch (error: any) {
+      console.error("Error con Google Nativo:", error);
+      mostrarAlerta("Se canceló el inicio de sesión con Google.");
     } finally {
       setCargando(false);
     }
@@ -164,10 +161,10 @@ export default function HomeScreen() {
               </Text>
             </Pressable>
 
-            {/* Botón de Google  */}
+            {/* Nuevo Botón Nativo de Google */}
             <Pressable
-              disabled={!request || cargando}
-              onPress={() => promptAsync()}
+              disabled={cargando}
+              onPress={iniciarSesionGoogle}
               style={({ pressed }) => [
                 styles.botonGoogle,
                 cargando && styles.botonDeshabilitado,
@@ -175,7 +172,7 @@ export default function HomeScreen() {
               ]}
             >
               <Text style={styles.textoBotonGoogle}>
-                🌐 Ingresar con (Google)
+                🌐 Ingresar con Google
               </Text>
             </Pressable>
 
