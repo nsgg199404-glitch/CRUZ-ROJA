@@ -18,7 +18,7 @@ import * as Google from 'expo-auth-session/providers/google';
 
 import { db, auth } from '@/lib/firebase';
 
-// Cierra el navegador correctamente después del login de Google en móvil
+
 WebBrowser.maybeCompleteAuthSession();
 
 export default function HomeScreen() {
@@ -26,9 +26,10 @@ export default function HomeScreen() {
   const [contrasena, setContrasena] = useState('');
   const [cargando, setCargando] = useState(false);
 
-  // Configuración de Google para App Móvil con Expo y tu ID real
+
   const [request, response, promptAsync] = Google.useAuthRequest({
     webClientId: '531896448688-iam6hbuqu8i1al4pa6qhvsnjj6uhal8l.apps.googleusercontent.com',
+    androidClientId: '531896448688-6ov9je29k41q91q7p0i40v28l6h2gii5.apps.googleusercontent.com',
   });
 
   useEffect(() => {
@@ -184,7 +185,6 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
-
 
 const styles = StyleSheet.create({
   pantalla: { flex: 1, backgroundColor: '#ffffff' },
