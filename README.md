@@ -59,3 +59,21 @@ npx eas-cli@latest build --platform android --profile preview
 * **Autenticación móvil:** Firebase Authentication y AsyncStorage.
 * **Compilación Android:** Expo Application Services (EAS Build).
 * **Lenguaje:** TypeScript / JavaScript.
+
+
+
+## Mockups de la aplicación móvil
+
+### Inicio de sesión
+
+![Pantalla de inicio de sesión](docs/mockups/login-movil.png)
+
+### Panel principal
+
+![Panel principal móvil](docs/mockups/docsmockupspanel-movil01.jpeg)
+
+![Panel superadministrador móvil](docs/mockups/docsmockupspanel-movil02.jpeg)
+
+### Control de combustible
+
+![Módulo de control de combustible](docs/mockups/combustible-movil.jpeg)
